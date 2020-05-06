@@ -19,9 +19,16 @@ instance (or load/inject metadata) just after entity manager creation.
 
 Dummy DBAL platform for EntityManagerTrait.
  
-Docrine Mongo ODM
------------------
+Doctrine Mongo ODM
+------------------
 
 #### DocumentManagerTrait
 
 Provides an instance of DocumentManager for mongo upon a mocked mongo Client.
+
+Elastica ODM
+------------
+
+#### DocumentManagerTrait
+
+Provides an instance of DocumentManager for elastica upon a mocked elastica Client.
