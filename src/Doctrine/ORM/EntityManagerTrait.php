@@ -19,6 +19,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping\UnderscoreNamingStrategy;
 use Doctrine\ORM\Proxy\ProxyFactory;
 use Prophecy\Argument;
+use Prophecy\PhpUnit\ProphecyTrait;
 use Prophecy\Prophecy\ObjectProphecy;
 use Refugis\DoctrineExtra\ORM\EntityRepository;
 use function array_values;
@@ -26,6 +27,8 @@ use function sys_get_temp_dir;
 
 trait EntityManagerTrait
 {
+    use ProphecyTrait;
+
     private ?EntityManagerInterface $_entityManager = null;
     private Connection $_connection;
     private Configuration $_configuration;

@@ -15,6 +15,7 @@ use MongoDB\Client;
 use MongoDB\Collection;
 use MongoDB\Database;
 use Prophecy\Argument;
+use Prophecy\PhpUnit\ProphecyTrait;
 use Prophecy\Prophecy\ObjectProphecy;
 use Solido\TestUtils\Doctrine\ORM\FakeMetadataFactory;
 use function assert;
@@ -22,6 +23,8 @@ use function sys_get_temp_dir;
 
 trait DocumentManagerTrait
 {
+    use ProphecyTrait;
+
     private DocumentManager $documentManager;
 
     /** @var Client|ObjectProphecy */

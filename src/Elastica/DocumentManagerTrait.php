@@ -7,12 +7,15 @@ namespace Solido\TestUtils\Elastica;
 use Elastica\Client;
 use Elastica\Index;
 use Prophecy\Argument;
+use Prophecy\PhpUnit\ProphecyTrait;
 use Prophecy\Prophecy\ObjectProphecy;
 use Refugis\ODM\Elastica\Builder;
 use Refugis\ODM\Elastica\DocumentManagerInterface;
 
 trait DocumentManagerTrait
 {
+    use ProphecyTrait;
+
     private ?DocumentManagerInterface $documentManager;
 
     /** @var Client|ObjectProphecy */

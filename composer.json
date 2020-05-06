@@ -14,7 +14,8 @@
         }
     ],
     "require": {
-        "php": "^7.4"
+        "php": "^7.4",
+        "phpspec/prophecy-phpunit": "^2.0"
     },
     "require-dev": {
         "doctrine/dbal": "^2.10",
