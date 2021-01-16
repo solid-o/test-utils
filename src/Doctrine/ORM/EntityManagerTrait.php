@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Solido\TestUtils\Doctrine\ORM;
 
 use Doctrine\Common\Cache\ArrayCache;
-use Doctrine\Persistence\Mapping\Driver\MappingDriver;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
 use Doctrine\DBAL\Driver\PDOConnection;
@@ -18,6 +17,7 @@ use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping\UnderscoreNamingStrategy;
 use Doctrine\ORM\Proxy\ProxyFactory;
+use Doctrine\Persistence\Mapping\Driver\MappingDriver;
 use Prophecy\Argument;
 use Prophecy\PhpUnit\ProphecyTrait;
 use Prophecy\Prophecy\ObjectProphecy;
