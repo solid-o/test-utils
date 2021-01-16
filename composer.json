@@ -14,12 +14,11 @@
         }
     ],
     "require": {
-        "php": "^7.4",
+        "php": "^7.4|^8.0",
         "phpspec/prophecy-phpunit": "^2.0"
     },
     "require-dev": {
         "doctrine/dbal": "^2.10",
-        "doctrine/mongodb": "^1.6",
         "doctrine/mongodb-odm": "^2.0",
         "doctrine/orm": "^2.7",
         "phpunit/phpunit": "^8.0|^9.1",

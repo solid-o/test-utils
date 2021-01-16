@@ -18,6 +18,7 @@ use Prophecy\Argument;
 use Prophecy\PhpUnit\ProphecyTrait;
 use Prophecy\Prophecy\ObjectProphecy;
 use Solido\TestUtils\Doctrine\ORM\FakeMetadataFactory;
+
 use function assert;
 use function sys_get_temp_dir;
 

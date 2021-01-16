@@ -22,6 +22,7 @@ use Prophecy\Argument;
 use Prophecy\PhpUnit\ProphecyTrait;
 use Prophecy\Prophecy\ObjectProphecy;
 use Refugis\DoctrineExtra\ORM\EntityRepository;
+
 use function array_values;
 use function sys_get_temp_dir;
 

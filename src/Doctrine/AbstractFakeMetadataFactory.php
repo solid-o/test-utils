@@ -8,6 +8,7 @@ use Doctrine\Persistence\Mapping\ClassMetadata;
 use Doctrine\Persistence\Mapping\ClassMetadataFactory;
 use Doctrine\Persistence\Mapping\MappingException;
 use Doctrine\Persistence\Mapping\RuntimeReflectionService;
+
 use function array_values;
 
 class AbstractFakeMetadataFactory implements ClassMetadataFactory

@@ -2,9 +2,12 @@
 
 declare(strict_types=1);
 
+// phpcs:disable PSR2.Methods.MethodDeclaration.Underscore
+
 namespace Solido\TestUtils\Doctrine\ORM;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+
 use function Safe\sprintf;
 
 class MockPlatform extends AbstractPlatform
@@ -67,7 +70,7 @@ class MockPlatform extends AbstractPlatform
     protected function getVarcharTypeDeclarationSQLSnippet($length, $fixed): string
     {
         $type = $fixed ? 'CHAR' : 'VARCHAR';
-        $length = $length ?? 255;
+        $length ??= 255;
 
         return sprintf('%s(%d)', $type, $length);
     }

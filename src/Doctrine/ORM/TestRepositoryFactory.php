@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace Solido\TestUtils\Doctrine\ORM;
 
-use Doctrine\Common\Persistence\ObjectRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Repository\RepositoryFactory;
 use Doctrine\Persistence\Mapping\ClassMetadata;
+use Doctrine\Persistence\ObjectRepository;
 use Prophecy\Prophecy\ProphecyInterface;
 use TypeError;
+
 use function assert;
 use function get_class;
 use function spl_object_hash;

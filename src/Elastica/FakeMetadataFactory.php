@@ -8,6 +8,7 @@ use Doctrine\Persistence\Mapping\MappingException;
 use Kcs\Metadata\ClassMetadataInterface;
 use Refugis\ODM\Elastica\Metadata\DocumentMetadata;
 use Refugis\ODM\Elastica\Metadata\MetadataFactory;
+
 use function array_values;
 use function assert;
 use function get_class;

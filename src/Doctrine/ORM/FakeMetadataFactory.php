@@ -7,6 +7,7 @@ namespace Solido\TestUtils\Doctrine\ORM;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping\ClassMetadata as ORMClassMetadata;
 use Solido\TestUtils\Doctrine\AbstractFakeMetadataFactory;
+
 use function assert;
 
 class FakeMetadataFactory extends AbstractFakeMetadataFactory
