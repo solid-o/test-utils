@@ -18,19 +18,30 @@
         "phpspec/prophecy-phpunit": "^2.0"
     },
     "require-dev": {
+        "ext-json": "*",
         "doctrine/dbal": "^2.10",
         "doctrine/mongodb-odm": "^2.0",
         "doctrine/orm": "^2.7",
-        "phpunit/phpunit": "^8.0|^9.1",
+        "phpunit/phpunit": "^9.4",
         "refugis/doctrine-extra": "dev-master",
         "refugis/elastica-odm": "dev-master",
         "roave/security-advisories": "dev-master",
+        "solido/common": "dev-master",
         "solido/php-coding-standards": "dev-master",
-        "symfony/cache": "^4.4|^5.0"
+        "solido/security-policy-checker": "dev-master",
+        "symfony/browser-kit": "^4.4|^5.0",
+        "symfony/cache": "^4.4|^5.0",
+        "symfony/framework-bundle": "^4.4|^5.0",
+        "symfony/property-access": "^4.4|^5.0"
     },
     "autoload": {
         "psr-4": {
             "Solido\\TestUtils\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Solido\\TestUtils\\Tests\\": "tests/"
         }
     },
     "scripts": {
