@@ -257,12 +257,12 @@ trait FunctionalTestTrait
         self::assertThat($policies, new SecurityPolicyChecked(...$checked));
     }
 
-    public function assertResponseHasHeader(string $header, string $message = ''): void
+    public static function assertResponseHasHeader(string $header, string $message = ''): void
     {
         self::assertThat(static::getResponse(), new ResponseHasHeaders([$header]), $message);
     }
 
-    public function assertResponseHasNotHeader(string $header, string $message = ''): void
+    public static function assertResponseHasNotHeader(string $header, string $message = ''): void
     {
         self::assertThat(static::getResponse(), new LogicalNot(new ResponseHasHeaders([$header])), $message);
     }
