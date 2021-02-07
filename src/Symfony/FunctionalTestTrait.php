@@ -99,12 +99,14 @@ trait FunctionalTestTrait
      * Executes a GET request.
      *
      * @param array<string, string> $additionalHeaders
+     * @param array<string, string> $server
      */
     private static function get(
         string $url,
-        array $additionalHeaders = []
+        array $additionalHeaders = [],
+        array $server = []
     ): Response {
-        return self::request($url, 'GET', null, $additionalHeaders);
+        return self::request($url, 'GET', null, $additionalHeaders, [], $server);
     }
 
     /**
@@ -113,14 +115,16 @@ trait FunctionalTestTrait
      * @param array<string, mixed>|string $requestData
      * @param array<string, string> $additionalHeaders
      * @param UploadedFile[] $files
+     * @param array<string, string> $server
      */
     private static function post(
         string $url,
         $requestData = null,
         array $additionalHeaders = [],
-        array $files = []
+        array $files = [],
+        array $server = []
     ): Response {
-        return self::request($url, 'POST', $requestData, $additionalHeaders, $files);
+        return self::request($url, 'POST', $requestData, $additionalHeaders, $files, $server);
     }
 
     /**
@@ -129,14 +133,16 @@ trait FunctionalTestTrait
      * @param array<string, mixed>|string $requestData
      * @param array<string, string> $additionalHeaders
      * @param UploadedFile[] $files
+     * @param array<string, string> $server
      */
     private static function put(
         string $url,
         $requestData = null,
         array $additionalHeaders = [],
-        array $files = []
+        array $files = [],
+        array $server = []
     ): Response {
-        return self::request($url, 'PUT', $requestData, $additionalHeaders, $files);
+        return self::request($url, 'PUT', $requestData, $additionalHeaders, $files, $server);
     }
 
     /**
@@ -145,26 +151,30 @@ trait FunctionalTestTrait
      * @param array<string, mixed>|string $requestData
      * @param array<string, string> $additionalHeaders
      * @param UploadedFile[] $files
+     * @param array<string, string> $server
      */
     private static function patch(
         string $url,
         $requestData = null,
         array $additionalHeaders = [],
-        array $files = []
+        array $files = [],
+        array $server = []
     ): Response {
-        return self::request($url, 'PATCH', $requestData, $additionalHeaders, $files);
+        return self::request($url, 'PATCH', $requestData, $additionalHeaders, $files, $server);
     }
 
     /**
      * Executes a DELETE request.
      *
      * @param array<string, string>  $additionalHeaders
+     * @param array<string, string> $server
      */
     private static function delete(
         string $url,
-        array $additionalHeaders = []
+        array $additionalHeaders = [],
+        array $server = []
     ): Response {
-        return self::request($url, 'DELETE', null, $additionalHeaders);
+        return self::request($url, 'DELETE', null, $additionalHeaders, [], $server);
     }
 
     /**
@@ -173,13 +183,15 @@ trait FunctionalTestTrait
      * @param array<string, mixed>|string $requestData
      * @param array<string, string> $additionalHeaders
      * @param UploadedFile[] $files
+     * @param array<string, string> $server
      */
     private static function request(
         string $url,
         string $method,
         $requestData = null,
         array $additionalHeaders = [],
-        array $files = []
+        array $files = [],
+        array $server = []
     ): Response {
         $headers = new HeaderBag(['accept' => 'application/json']);
         $headers->add($additionalHeaders);
@@ -193,7 +205,7 @@ trait FunctionalTestTrait
             }
         }
 
-        $request = new BrowserKitRequest($url, $method, [], $files, [], iterator_to_array(self::_formatPhpHeaders($headers->all())), $requestData);
+        $request = new BrowserKitRequest($url, $method, [], $files, [], iterator_to_array(self::_formatPhpHeaders($headers->all())) + $server, $requestData);
         $request = static::onPreRequest($request);
 
         static::ensureKernelShutdown();
