@@ -5,8 +5,11 @@ declare(strict_types=1);
 namespace Solido\TestUtils\Doctrine\ORM;
 
 use Doctrine\Common\Cache\ArrayCache;
+use Doctrine\Common\Proxy\AbstractProxyFactory;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
+use Doctrine\DBAL\Driver\PDO\Connection as DbalPdoConnection;
+use Doctrine\DBAL\Driver\PDO\MySQL\Driver as MySQLDriver;
 use Doctrine\DBAL\Driver\PDOConnection;
 use Doctrine\DBAL\Driver\PDOMySql\Driver;
 use Doctrine\DBAL\Driver\Statement;
@@ -24,7 +27,10 @@ use Prophecy\Prophecy\ObjectProphecy;
 use Refugis\DoctrineExtra\ORM\EntityRepository;
 
 use function array_values;
+use function class_exists;
 use function sys_get_temp_dir;
+
+use const CASE_LOWER;
 
 trait EntityManagerTrait
 {
@@ -47,17 +53,17 @@ trait EntityManagerTrait
             $this->_configuration->setMetadataDriverImpl($this->prophesize(MappingDriver::class)->reveal());
             $this->_configuration->setProxyDir(sys_get_temp_dir());
             $this->_configuration->setProxyNamespace('__TMP__\\ProxyNamespace\\');
-            $this->_configuration->setAutoGenerateProxyClasses(ProxyFactory::AUTOGENERATE_ALWAYS);
+            $this->_configuration->setAutoGenerateProxyClasses(class_exists(AbstractProxyFactory::class) ? AbstractProxyFactory::AUTOGENERATE_ALWAYS : ProxyFactory::AUTOGENERATE_ALWAYS);
             $this->_configuration->setDefaultRepositoryClassName(EntityRepository::class);
             $this->_configuration->setRepositoryFactory(new TestRepositoryFactory());
-            $this->_configuration->setNamingStrategy(new UnderscoreNamingStrategy());
+            $this->_configuration->setNamingStrategy(new UnderscoreNamingStrategy(CASE_LOWER, true));
 
-            $this->_innerConnection = $this->prophesize(PDOConnection::class);
+            $this->_innerConnection = $this->prophesize(class_exists(DbalPdoConnection::class) ? DbalPdoConnection::class : PDOConnection::class);
 
             $this->_connection = new Connection([
                 'pdo' => $this->_innerConnection->reveal(),
                 'platform' => $this->getConnectionPlatform(),
-            ], new Driver(), $this->_configuration);
+            ], class_exists(MySQLDriver::class) ? new MySQLDriver() : new Driver(), $this->_configuration);
 
             $this->_entityManager = EntityManager::create($this->_connection, $this->_configuration);
             $this->onEntityManagerCreated();
