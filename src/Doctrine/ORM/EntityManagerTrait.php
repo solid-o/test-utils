@@ -25,9 +25,12 @@ use Prophecy\Argument;
 use Prophecy\PhpUnit\ProphecyTrait;
 use Prophecy\Prophecy\ObjectProphecy;
 use Refugis\DoctrineExtra\ORM\EntityRepository;
+use Solido\TestUtils\Prophecy\Argument\Token\StringMatchesToken;
 
 use function array_values;
 use function class_exists;
+use function preg_quote;
+use function preg_replace_callback;
 use function sys_get_temp_dir;
 
 use const CASE_LOWER;
@@ -91,7 +94,22 @@ trait EntityManagerTrait
      */
     private function queryLike(string $query, array $parameters = [], array $results = []): void
     {
-        $this->_innerConnection->{$parameters ? 'prepare' : 'query'}(Argument::containingString($query))
+        $query = preg_replace_callback(
+            '#[\\\\^$.\[\]|\-()?*+{}]#',
+            static fn ($match) => '\\' . $match[0],
+            $query
+        );
+
+        $this->queryMatches('/' . preg_quote($query, '/') . '/', $parameters, $results);
+    }
+
+    /**
+     * @param array<string|int, mixed> $parameters
+     * @param array<array<string, string>> $results
+     */
+    private function queryMatches(string $query, array $parameters = [], array $results = []): void
+    {
+        $this->_innerConnection->{$parameters ? 'prepare' : 'query'}(new StringMatchesToken($query))
             ->willReturn($stmt = $this->prophesize(Statement::class));
 
         foreach (array_values($parameters) as $key => $value) {
