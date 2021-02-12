@@ -30,7 +30,6 @@ use Solido\TestUtils\Prophecy\Argument\Token\StringMatchesToken;
 use function array_values;
 use function class_exists;
 use function preg_quote;
-use function preg_replace_callback;
 use function sys_get_temp_dir;
 
 use const CASE_LOWER;
@@ -94,12 +93,6 @@ trait EntityManagerTrait
      */
     private function queryLike(string $query, array $parameters = [], array $results = []): void
     {
-        $query = preg_replace_callback(
-            '#[\\\\^$.\[\]|\-()?*+{}]#',
-            static fn ($match) => '\\' . $match[0],
-            $query
-        );
-
         $this->queryMatches('/' . preg_quote($query, '/') . '/', $parameters, $results);
     }
 
