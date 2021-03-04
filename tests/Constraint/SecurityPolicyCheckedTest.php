@@ -42,10 +42,10 @@ class SecurityPolicyCheckedTest extends TestCase
 
     public function testToString(): void
     {
-        $constraint = new SecurityPolicyChecked('Permission1');
+        $constraint = new SecurityPolicyChecked(['action' => 'Permission1']);
         self::assertEquals('security policy has been checked', $constraint->toString());
 
-        $constraint = new SecurityPolicyChecked('Permission1', 'Permission2');
+        $constraint = new SecurityPolicyChecked(['action' => 'Permission1'], ['action' => 'Permission2']);
         self::assertEquals('security policies has been checked', $constraint->toString());
     }
 }

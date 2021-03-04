@@ -47,11 +47,15 @@ trait FunctionalTestTrait
      * @param array<string, mixed> $server  An array of server parameters
      *
      * @return KernelBrowser A Client instance
+     *
+     * @phpcsSuppress SlevomatCodingStandard.TypeHints.ReturnTypeHint.MissingNativeTypeHint
      */
     abstract protected static function createClient(array $options = [], array $server = []);
 
     /**
      * Shuts the kernel down if it was used in the test.
+     *
+     * @phpcsSuppress SlevomatCodingStandard.TypeHints.ReturnTypeHint.MissingNativeTypeHint
      */
     abstract protected static function ensureKernelShutdown();
 

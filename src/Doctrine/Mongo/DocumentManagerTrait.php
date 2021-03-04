@@ -58,11 +58,11 @@ trait DocumentManagerTrait
 
             $this->documentManager = DocumentManager::create($this->client->reveal(), $this->configuration);
 
-            (function () use ($schemaManager) {
+            (function () use ($schemaManager): void {
                 $this->schemaManager = $schemaManager->reveal();
             })->call($this->documentManager);
 
-            (function () use ($metadataFactory) {
+            (function () use ($metadataFactory): void {
                 $this->metadataFactory = $metadataFactory;
             })->call($this->documentManager);
         }

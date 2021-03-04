@@ -22,9 +22,9 @@ class SecurityPolicyChecked extends Constraint
     private array $remaining;
 
     /**
-     * @param array<string, mixed>[] $checkedPolicies
+     * @param array<string, mixed> ...$checkedPolicies
      */
-    public function __construct(...$checkedPolicies)
+    public function __construct(array ...$checkedPolicies)
     {
         $this->checkedPolicies = $checkedPolicies;
         $this->remaining = [];
