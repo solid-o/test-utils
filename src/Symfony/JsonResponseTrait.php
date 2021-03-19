@@ -75,7 +75,7 @@ trait JsonResponseTrait
      *
      * @throws Throwable
      */
-    private function assertJsonResponsePropertyIsArray(string $propertyPath, string $message = ''): void
+    public function assertJsonResponsePropertyIsArray(string $propertyPath, string $message = ''): void
     {
         self::assertJsonResponsePropertyIsType('array', $propertyPath, $message);
     }
@@ -100,7 +100,7 @@ trait JsonResponseTrait
      * 'scalar'   => true,
      * 'callable' => true
      */
-    private static function assertJsonResponsePropertyIsType(string $expected, string $propertyPath, string $message = ''): void
+    public static function assertJsonResponsePropertyIsType(string $expected, string $propertyPath, string $message = ''): void
     {
         self::assertThat(self::getResponse(), new JsonResponsePropertyIsType($propertyPath, $expected), $message);
     }
@@ -108,7 +108,7 @@ trait JsonResponseTrait
     /**
      * Asserts the given response property (probably an array) has the expected "count".
      */
-    private static function assertJsonResponsePropertyCount(int $expected, string $propertyPath, string $message = ''): void
+    public static function assertJsonResponsePropertyCount(int $expected, string $propertyPath, string $message = ''): void
     {
         self::assertThat(self::getResponse(), new JsonResponsePropertyCount($propertyPath, $expected), $message);
     }
