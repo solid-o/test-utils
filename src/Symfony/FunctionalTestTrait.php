@@ -17,6 +17,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\HeaderBag;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\VarDumper\Cloner\Data;
 
 use function assert;
@@ -25,6 +26,9 @@ use function in_array;
 use function is_array;
 use function iterator_to_array;
 use function json_encode;
+use function ob_end_clean;
+use function ob_end_flush;
+use function ob_start;
 use function sprintf;
 use function str_replace;
 use function strtolower;
@@ -216,6 +220,7 @@ trait FunctionalTestTrait
         self::$client = static::createClient();
         self::$client->enableProfiler();
 
+        ob_start();
         self::$client->request(
             $request->getMethod(),
             $request->getUri(),
@@ -225,7 +230,14 @@ trait FunctionalTestTrait
             $request->getContent()
         );
 
-        return self::$client->getResponse();
+        $response = self::$client->getResponse();
+        if ($response instanceof StreamedResponse) {
+            ob_end_clean();
+        } else {
+            ob_end_flush();
+        }
+
+        return $response;
     }
 
     /**

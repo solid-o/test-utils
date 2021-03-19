@@ -14,9 +14,14 @@ use Solido\TestUtils\Symfony\FunctionalTestTrait;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\BrowserKit\Request as BrowserKitRequest;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\HttpKernel\Profiler\Profile;
 use Symfony\Component\VarDumper\Cloner\Data;
+
+use function ob_get_clean;
+use function ob_start;
 
 use const UPLOAD_ERR_OK;
 
@@ -106,6 +111,30 @@ class FunctionalTestTraitTest extends TestCase
             ['Accept' => 'application/json'],
             [new UploadedFile(__DIR__ . '/../fixtures/photo.jpg', 'photo.jpg', 'image/jpeg', UPLOAD_ERR_OK, true)]
         );
+    }
+
+    public function testShouldIgnoredStreamedOutput(): void
+    {
+        $client = $this->prophesize(KernelBrowser::class);
+        ConcreteFunctionalTestTrait::setClient($client->reveal());
+
+        $response = new StreamedResponse(static function (): void {
+            echo 'this should not be visible';
+        });
+
+        $client->request('GET', '/', Argument::cetera())
+            ->will(function () use ($response): void {
+                $response->prepare(new Request());
+                $response->send();
+            })
+            ->shouldBeCalled();
+
+        $client->enableProfiler()->shouldBeCalled();
+        $client->getResponse()->willReturn($response);
+
+        ob_start();
+        ConcreteFunctionalTestTrait::request('/', 'GET');
+        self::assertEquals('', ob_get_clean());
     }
 }
 
