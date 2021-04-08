@@ -29,6 +29,7 @@ use Solido\TestUtils\Prophecy\Argument\Token\StringMatchesToken;
 
 use function array_values;
 use function class_exists;
+use function method_exists;
 use function preg_quote;
 use function sys_get_temp_dir;
 
@@ -110,14 +111,20 @@ trait EntityManagerTrait
         }
 
         $stmt->execute()->willReturn();
-        $stmt->setFetchMode(FetchMode::ASSOCIATIVE)->willReturn();
+        $stmt->setFetchMode(FetchMode::ASSOCIATIVE, Argument::cetera())->willReturn();
         $stmt->closeCursor()->willReturn();
 
-        $stmt->fetchAll(FetchMode::ASSOCIATIVE)->willReturn($results);
+        $stmt->fetchAll(FetchMode::ASSOCIATIVE, Argument::cetera())->willReturn($results);
         $stmt->fetchAll()->willReturn($results);
 
         $results[] = null;
-        $stmt->fetch(FetchMode::ASSOCIATIVE)->willReturn(...$results);
+        $stmt->fetch(FetchMode::ASSOCIATIVE, Argument::cetera())->willReturn(...$results);
+
+        if (! method_exists(Statement::class, 'fetchAssociative')) {
+            return;
+        }
+
+        $stmt->fetchAssociative()->willReturn(...$results);
     }
 
     /**

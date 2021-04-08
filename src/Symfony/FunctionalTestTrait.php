@@ -217,11 +217,11 @@ trait FunctionalTestTrait
         $request = static::onPreRequest($request);
 
         static::ensureKernelShutdown();
-        self::$client = static::createClient();
-        self::$client->enableProfiler();
+        static::$client = static::createClient();
+        static::$client->enableProfiler();
 
         ob_start();
-        self::$client->request(
+        static::$client->request(
             $request->getMethod(),
             $request->getUri(),
             $request->getParameters(),
