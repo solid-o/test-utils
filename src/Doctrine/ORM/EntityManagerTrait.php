@@ -86,6 +86,7 @@ trait EntityManagerTrait
 
     private function onEntityManagerCreated(): void
     {
+        // Intentionally empty.
     }
 
     /**
