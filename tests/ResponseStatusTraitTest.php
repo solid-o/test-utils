@@ -2,12 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Solido\TestUtils\Tests\Symfony;
+namespace Solido\TestUtils\Tests;
 
+use Nyholm\Psr7;
 use PHPUnit\Framework\Assert;
 use PHPUnit\Framework\ExpectationFailedException;
 use PHPUnit\Framework\TestCase;
-use Solido\TestUtils\Symfony\ResponseStatusTrait;
+use Solido\TestUtils\ResponseStatusTrait;
 use Symfony\Component\HttpFoundation\Response;
 
 class ResponseStatusTraitTest extends TestCase
@@ -18,6 +19,12 @@ class ResponseStatusTraitTest extends TestCase
         ConcreteResponseStatusTrait::assertResponseIs(200);
 
         ConcreteResponseStatusTrait::$response = new Response('', 500);
+        ConcreteResponseStatusTrait::assertResponseIs(500);
+
+        ConcreteResponseStatusTrait::$response = new Psr7\Response(200);
+        ConcreteResponseStatusTrait::assertResponseIs(200);
+
+        ConcreteResponseStatusTrait::$response = new Psr7\Response(500);
         ConcreteResponseStatusTrait::assertResponseIs(500);
     }
 
@@ -206,9 +213,9 @@ class ConcreteResponseStatusTrait extends Assert
 {
     use ResponseStatusTrait;
 
-    public static Response $response;
+    public static object $response;
 
-    public static function getResponse(): Response
+    public static function getResponse(): object
     {
         return self::$response;
     }

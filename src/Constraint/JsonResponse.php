@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace Solido\TestUtils\Constraint;
 
-use PHPUnit\Framework\Constraint\Constraint;
 use PHPUnit\Framework\Constraint\JsonMatchesErrorMessageProvider;
-use Symfony\Component\HttpFoundation\Response;
+use Solido\Common\Exception\UnsupportedResponseObjectException;
 
 use function json_decode;
 use function json_last_error;
@@ -15,22 +14,23 @@ use function Safe\sprintf;
 
 use const JSON_ERROR_NONE;
 
-final class JsonResponse extends Constraint
+final class JsonResponse extends ResponseConstraint
 {
     /**
      * {@inheritdoc}
      */
     protected function matches($other): bool
     {
-        if (
-            ! $other instanceof Response ||
-            ! $other->headers->has('Content-Type') ||
-            ! preg_match('/application\/json/', (string) $other->headers->get('Content-Type', ''))
-        ) {
+        try {
+            $adapter = self::getResponseAdapter($other);
+            if (! preg_match('/application\/json/', $adapter->getContentType())) {
+                return false;
+            }
+        } catch (UnsupportedResponseObjectException $e) {
             return false;
         }
 
-        $content = $other->getContent();
+        $content = $adapter->getContent();
         if ($content === '') {
             return false;
         }
@@ -46,18 +46,17 @@ final class JsonResponse extends Constraint
      */
     protected function failureDescription($other): string
     {
-        if (! $other instanceof Response) {
+        try {
+            $adapter = self::getResponseAdapter($other);
+        } catch (UnsupportedResponseObjectException $e) {
             return sprintf('%s is a response object', $this->exporter()->shortenedExport($other));
         }
 
-        if (
-            ! $other->headers->has('Content-Type') ||
-            ! preg_match('/application\/json/', (string) $other->headers->get('Content-Type', ''))
-        ) {
+        if (! preg_match('/application\/json/', $adapter->getContentType())) {
             return sprintf('%s has json content type', $this->exporter()->shortenedExport($other));
         }
 
-        $content = $other->getContent();
+        $content = $adapter->getContent();
         if ($content !== '') {
             /** @phpstan-ignore-next-line */
             json_decode($content);

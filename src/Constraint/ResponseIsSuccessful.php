@@ -4,23 +4,24 @@ declare(strict_types=1);
 
 namespace Solido\TestUtils\Constraint;
 
-use PHPUnit\Framework\Constraint\Constraint;
-use Symfony\Component\HttpFoundation\Response;
+use Solido\Common\Exception\UnsupportedResponseObjectException;
 
 use function Safe\sprintf;
 
-final class ResponseIsSuccessful extends Constraint
+final class ResponseIsSuccessful extends ResponseConstraint
 {
     /**
      * {@inheritdoc}
      */
     protected function matches($other): bool
     {
-        if (! $other instanceof Response) {
+        try {
+            $adapter = self::getResponseAdapter($other);
+        } catch (UnsupportedResponseObjectException $e) {
             return false;
         }
 
-        return $other->isSuccessful();
+        return $adapter->getStatusCode() >= 200 && $adapter->getStatusCode() < 300;
     }
 
     /**
@@ -28,7 +29,9 @@ final class ResponseIsSuccessful extends Constraint
      */
     protected function failureDescription($other): string
     {
-        if (! $other instanceof Response) {
+        try {
+            self::getResponseAdapter($other);
+        } catch (UnsupportedResponseObjectException $e) {
             return sprintf('%s is a response object', $this->exporter()->shortenedExport($other));
         }
 

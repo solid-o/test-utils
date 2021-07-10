@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Solido\TestUtils\Symfony;
+namespace Solido\TestUtils;
 
 use PHPUnit\Framework\Constraint\LogicalNot;
 use Solido\TestUtils\Constraint\ResponseIsRedirection;

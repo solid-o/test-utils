@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace Solido\TestUtils\Constraint;
 
-use PHPUnit\Framework\Constraint\Constraint;
-use Symfony\Component\HttpFoundation\Response;
+use Solido\Common\Exception\UnsupportedResponseObjectException;
 
 use function array_map;
 use function count;
@@ -15,7 +14,7 @@ use function Safe\sprintf;
 
 use const JSON_THROW_ON_ERROR;
 
-final class ResponseHasHeaders extends Constraint
+final class ResponseHasHeaders extends ResponseConstraint
 {
     /** @var string[] */
     private array $headers;
@@ -37,13 +36,15 @@ final class ResponseHasHeaders extends Constraint
      */
     protected function matches($other): bool
     {
-        if (! $other instanceof Response) {
+        try {
+            $adapter = self::getResponseAdapter($other);
+        } catch (UnsupportedResponseObjectException $e) {
             return false;
         }
 
         $this->missing = [];
         foreach ($this->headers as $header) {
-            if ($other->headers->has($header)) {
+            if (! empty($adapter->getHeader($header))) {
                 continue;
             }
 
@@ -58,7 +59,9 @@ final class ResponseHasHeaders extends Constraint
      */
     protected function failureDescription($other): string
     {
-        if (! $other instanceof Response) {
+        try {
+            self::getResponseAdapter($other);
+        } catch (UnsupportedResponseObjectException $e) {
             return sprintf('%s is a response object', $this->exporter()->shortenedExport($other));
         }
 

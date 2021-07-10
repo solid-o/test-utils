@@ -11,6 +11,7 @@ use Solido\PolicyChecker\DataCollector\PolicyCheckerDataCollector;
 use Solido\PolicyChecker\Test\TestPolicyChecker;
 use Solido\TestUtils\Constraint\ResponseHasHeaders;
 use Solido\TestUtils\Constraint\SecurityPolicyChecked;
+use Solido\TestUtils\ResponseStatusTrait;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\BrowserKit\Request as BrowserKitRequest;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -58,10 +59,8 @@ trait FunctionalTestTrait
 
     /**
      * Shuts the kernel down if it was used in the test.
-     *
-     * @phpcsSuppress SlevomatCodingStandard.TypeHints.ReturnTypeHint.MissingNativeTypeHint
      */
-    abstract protected static function ensureKernelShutdown();
+    abstract protected static function ensureKernelShutdown(); // phpcs:ignore
 
     /**
      * Adds a policy for the current test.

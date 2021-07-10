@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace Solido\TestUtils\Constraint;
 
-use PHPUnit\Framework\Constraint\Constraint;
 use PHPUnit\Framework\Constraint\JsonMatchesErrorMessageProvider;
 use PHPUnit\Framework\ExpectationFailedException;
-use Symfony\Component\HttpFoundation\Response;
+use Solido\Common\Exception\UnsupportedResponseObjectException;
 use Symfony\Component\PropertyAccess\Exception\AccessException;
 use Symfony\Component\PropertyAccess\Exception\UnexpectedTypeException;
 use Symfony\Component\PropertyAccess\PropertyAccess;
@@ -27,7 +26,7 @@ use function Safe\sprintf;
 
 use const JSON_ERROR_NONE;
 
-abstract class AbstractJsonResponseContent extends Constraint
+abstract class AbstractJsonResponseContent extends ResponseConstraint
 {
     /**
      * Returns a valid property accessor.
@@ -47,19 +46,19 @@ abstract class AbstractJsonResponseContent extends Constraint
      */
     protected function matches($other): bool
     {
-        if (! $other instanceof Response) {
+        try {
+            $adapter = self::getResponseAdapter($other);
+        } catch (UnsupportedResponseObjectException $e) {
             return false;
         }
 
-        if (
-            ! $other->headers->has('Content-Type') ||
-            ! preg_match('/application\/json/', (string) $other->headers->get('Content-Type', ''))
-        ) {
+        $contentType = $adapter->getContentType();
+        if (! preg_match('/application\/json/', $contentType)) {
             return false;
         }
 
         $accessor = self::getPropertyAccessor();
-        $content = $other->getContent();
+        $content = $adapter->getContent();
         if ($content === '') {
             return false;
         }
@@ -78,19 +77,19 @@ abstract class AbstractJsonResponseContent extends Constraint
      */
     protected function failureDescription($other): string
     {
-        if (! $other instanceof Response) {
+        try {
+            $adapter = self::getResponseAdapter($other);
+        } catch (UnsupportedResponseObjectException $e) {
             return sprintf('%s is a response object', $this->exporter()->shortenedExport($other));
         }
 
-        if (
-            ! $other->headers->has('Content-Type') ||
-            ! preg_match('/application\/json/', (string) $other->headers->get('Content-Type', ''))
-        ) {
+        $contentType = $adapter->getContentType();
+        if (! preg_match('/application\/json/', $contentType)) {
             return sprintf('%s has json content type', $this->exporter()->shortenedExport($other));
         }
 
         $accessor = self::getPropertyAccessor();
-        $content = $other->getContent();
+        $content = $adapter->getContent();
         if ($content !== '') {
             /** @phpstan-ignore-next-line */
             $value = json_decode($content);
