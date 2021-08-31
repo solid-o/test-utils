@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Solido\TestUtils\Tests\fixtures;
 
@@ -9,6 +11,8 @@ use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Kernel as BaseKernel;
 use Symfony\Component\Routing\RouteCollectionBuilder;
+
+use function sys_get_temp_dir;
 
 class TestKernel extends BaseKernel
 {
@@ -31,9 +35,7 @@ class TestKernel extends BaseKernel
 
     protected function configureContainer(ContainerBuilder $container, LoaderInterface $loader): void
     {
-        $container->loadFromExtension('framework', [
-            'test' => true,
-        ]);
+        $container->loadFromExtension('framework', ['test' => true]);
 
         $container->register('logger', NullLogger::class);
     }

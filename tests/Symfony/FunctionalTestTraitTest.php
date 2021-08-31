@@ -123,7 +123,7 @@ class FunctionalTestTraitTest extends TestCase
         });
 
         $client->request('GET', '/', Argument::cetera())
-            ->will(function () use ($response): void {
+            ->will(function () use ($response): void { // phpcs:ignore
                 $response->prepare(new Request());
                 $response->send();
             })

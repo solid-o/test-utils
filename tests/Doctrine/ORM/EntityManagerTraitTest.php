@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Solido\TestUtils\Tests\Doctrine\ORM;
 
@@ -8,6 +10,8 @@ use PHPUnit\Framework\TestCase;
 use Prophecy\Prophecy\ObjectProphecy;
 use Solido\TestUtils\Doctrine\ORM\EntityManagerTrait;
 use Solido\TestUtils\Doctrine\ORM\MockPlatform;
+
+use function spl_object_hash;
 
 class EntityManagerTraitTest extends TestCase
 {
@@ -57,21 +61,21 @@ class EntityManagerTraitTest extends TestCase
     public function testQueryLikeShouldRegisterQueryToBeExecuted(): void
     {
         $this->obj->getEntityManager();
-        $this->obj->queryLike('FROM x', [], [ ['x1' => 'foo'] ]);
+        $this->obj->queryLike('FROM x', [], [['x1' => 'foo']]);
 
         $connection = $this->obj->getInnerConnection()->reveal();
         $stmt = $connection->query('SELECT * FROM x WHERE x.id = 1');
-        self::assertEquals([ ['x1' => 'foo'] ], $stmt->fetchAll());
+        self::assertEquals([['x1' => 'foo']], $stmt->fetchAll());
     }
 
     public function testQueryMatchesShouldRegisterQueryToBeExecuted(): void
     {
         $this->obj->getEntityManager();
-        $this->obj->queryMatches('/FROM xy?z/i', [], [ ['x1' => 'foo'] ]);
+        $this->obj->queryMatches('/FROM xy?z/i', [], [['x1' => 'foo']]);
 
         $connection = $this->obj->getInnerConnection()->reveal();
         $stmt = $connection->query('SELECT * from xz WHERE x.id = 1');
-        self::assertEquals([ ['x1' => 'foo'] ], $stmt->fetchAll());
+        self::assertEquals([['x1' => 'foo']], $stmt->fetchAll());
     }
 }
 
