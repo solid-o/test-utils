@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Solido\TestUtils\Doctrine\ORM;
 
+use Cache\Adapter\PHPArray\ArrayCachePool;
 use Doctrine\Common\Cache\ArrayCache;
+use Doctrine\Common\Cache\Psr6\DoctrineProvider;
 use Doctrine\Common\Proxy\AbstractProxyFactory;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
@@ -51,7 +53,12 @@ trait EntityManagerTrait
         if ($this->_entityManager === null) {
             $this->_configuration = new Configuration();
 
-            $this->_configuration->setResultCacheImpl(new ArrayCache());
+            if (class_exists(DoctrineProvider::class)) {
+                $this->_configuration->setResultCacheImpl(DoctrineProvider::wrap(new ArrayCachePool()));
+            } elseif (class_exists(ArrayCache::class)) {
+                $this->_configuration->setResultCacheImpl(new ArrayCache());
+            }
+
             $this->_configuration->setClassMetadataFactoryName(FakeMetadataFactory::class);
             $this->_configuration->setMetadataDriverImpl($this->prophesize(MappingDriver::class)->reveal());
             $this->_configuration->setProxyDir(sys_get_temp_dir());

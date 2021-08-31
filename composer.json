@@ -15,6 +15,7 @@
     ],
     "require": {
         "php": "^7.4 || ^8.0",
+        "cache/array-adapter": "^1.0",
         "phpspec/prophecy-phpunit": "^2.0",
         "solido/common": "*"
     },
