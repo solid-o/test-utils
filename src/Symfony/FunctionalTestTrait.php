@@ -27,8 +27,8 @@ use function in_array;
 use function is_array;
 use function iterator_to_array;
 use function json_encode;
-use function ob_end_clean;
 use function ob_end_flush;
+use function ob_get_clean;
 use function ob_start;
 use function sprintf;
 use function str_replace;
@@ -231,7 +231,21 @@ trait FunctionalTestTrait
 
         $response = self::$client->getResponse();
         if ($response instanceof StreamedResponse) {
-            ob_end_clean();
+            $contents = ob_get_clean();
+            $result = new Response($contents, $response->getStatusCode(), $response->headers->all());
+            $result->setStatusCode(
+                $response->getStatusCode(),
+                (fn () => $this->statusText)->bindTo($response, Response::class)() // phpcs:ignore Squiz.Scope.StaticThisUsage.Found
+            );
+
+            $charset = $response->getCharset();
+            if ($charset !== null) {
+                $result->setCharset($charset);
+            }
+
+            $result->setProtocolVersion($response->getProtocolVersion());
+
+            $response = $result;
         } else {
             ob_end_flush();
         }

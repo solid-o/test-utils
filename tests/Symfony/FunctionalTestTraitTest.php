@@ -133,8 +133,9 @@ class FunctionalTestTraitTest extends TestCase
         $client->getResponse()->willReturn($response);
 
         ob_start();
-        ConcreteFunctionalTestTrait::request('/', 'GET');
+        $response = ConcreteFunctionalTestTrait::request('/', 'GET');
         self::assertEquals('', ob_get_clean());
+        self::assertEquals('this should not be visible', $response->getContent());
     }
 }
 
