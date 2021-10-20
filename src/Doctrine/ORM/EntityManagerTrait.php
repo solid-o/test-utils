@@ -71,10 +71,21 @@ trait EntityManagerTrait
 
             $this->_innerConnection = $this->prophesize(interface_exists(ServerInfoAwareConnection::class) ? ServerInfoAwareConnection::class : PDOConnection::class);
 
-            $this->_connection = new Connection([
-                'pdo' => $this->_innerConnection->reveal(),
-                'platform' => $this->getConnectionPlatform(),
-            ], class_exists(MySQLDriver::class) ? new MySQLDriver() : new Driver(), $this->_configuration);
+            if (interface_exists(ServerInfoAwareConnection::class)) {
+                $this->_connection = new Connection([
+                    'user' => 'user',
+                    'name' => 'dbname',
+                    'platform' => $this->getConnectionPlatform(),
+                ], class_exists(MySQLDriver::class) ? new MySQLDriver() : new Driver(), $this->_configuration);
+
+                (fn (ServerInfoAwareConnection $connection) => $this->_conn = $connection)
+                    ->bindTo($this->_connection, Connection::class)($this->_innerConnection->reveal());
+            } else {
+                $this->_connection = new Connection([
+                    'pdo' => $this->_innerConnection->reveal(),
+                    'platform' => $this->getConnectionPlatform(),
+                ], class_exists(MySQLDriver::class) ? new MySQLDriver() : new Driver(), $this->_configuration);
+            }
 
             $this->_entityManager = EntityManager::create($this->_connection, $this->_configuration);
             $this->onEntityManagerCreated();
