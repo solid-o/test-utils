@@ -95,4 +95,9 @@ class MockPlatform extends AbstractPlatform
     {
         return sprintf('%s(%d)', $fixed ? 'DUMMY_BINARY' : 'DUMMY_VARBINARY', $length ?: 255);
     }
+
+    public function getCurrentDatabaseExpression(): string
+    {
+        return 'DUMMY_DATABASE()';
+    }
 }

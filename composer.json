@@ -21,7 +21,7 @@
     },
     "require-dev": {
         "ext-json": "*",
-        "doctrine/dbal": "^2.10",
+        "doctrine/dbal": "^2.10 || ^3.0",
         "doctrine/mongodb-odm": "^2.0",
         "doctrine/orm": "^2.7",
         "nyholm/psr7": "^1.0",

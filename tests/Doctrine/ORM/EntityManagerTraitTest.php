@@ -65,7 +65,7 @@ class EntityManagerTraitTest extends TestCase
 
         $connection = $this->obj->getInnerConnection()->reveal();
         $stmt = $connection->query('SELECT * FROM x WHERE x.id = 1');
-        self::assertEquals([['x1' => 'foo']], $stmt->fetchAll());
+        self::assertEquals([['x1' => 'foo']], method_exists($stmt, 'fetchAll') ? $stmt->fetchAll() : $stmt->fetchAllAssociative());
     }
 
     public function testQueryMatchesShouldRegisterQueryToBeExecuted(): void
@@ -75,7 +75,7 @@ class EntityManagerTraitTest extends TestCase
 
         $connection = $this->obj->getInnerConnection()->reveal();
         $stmt = $connection->query('SELECT * from xz WHERE x.id = 1');
-        self::assertEquals([['x1' => 'foo']], $stmt->fetchAll());
+        self::assertEquals([['x1' => 'foo']], method_exists($stmt, 'fetchAll') ? $stmt->fetchAll() : $stmt->fetchAllAssociative());
     }
 }
 

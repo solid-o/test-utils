@@ -10,10 +10,10 @@ use Doctrine\Common\Cache\Psr6\DoctrineProvider;
 use Doctrine\Common\Proxy\AbstractProxyFactory;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
-use Doctrine\DBAL\Driver\PDO\Connection as DbalPdoConnection;
 use Doctrine\DBAL\Driver\PDO\MySQL\Driver as MySQLDriver;
 use Doctrine\DBAL\Driver\PDOConnection;
 use Doctrine\DBAL\Driver\PDOMySql\Driver;
+use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
@@ -31,6 +31,7 @@ use Solido\TestUtils\Prophecy\Argument\Token\StringMatchesToken;
 
 use function array_values;
 use function class_exists;
+use function interface_exists;
 use function method_exists;
 use function preg_quote;
 use function sys_get_temp_dir;
@@ -68,7 +69,7 @@ trait EntityManagerTrait
             $this->_configuration->setRepositoryFactory(new TestRepositoryFactory());
             $this->_configuration->setNamingStrategy(new UnderscoreNamingStrategy(CASE_LOWER, true));
 
-            $this->_innerConnection = $this->prophesize(class_exists(DbalPdoConnection::class) ? DbalPdoConnection::class : PDOConnection::class);
+            $this->_innerConnection = $this->prophesize(interface_exists(ServerInfoAwareConnection::class) ? ServerInfoAwareConnection::class : PDOConnection::class);
 
             $this->_connection = new Connection([
                 'pdo' => $this->_innerConnection->reveal(),
@@ -111,28 +112,42 @@ trait EntityManagerTrait
      */
     private function queryMatches(string $query, array $parameters = [], array $results = []): void
     {
-        $this->_innerConnection->{$parameters ? 'prepare' : 'query'}(new StringMatchesToken($query))
-            ->willReturn($stmt = $this->prophesize(Statement::class));
+        if (method_exists(Statement::class, 'setFetchMode')) {
+            $this->_innerConnection->{$parameters ? 'prepare' : 'query'}(new StringMatchesToken($query))
+                ->willReturn($stmt = $this->prophesize(Statement::class));
 
-        foreach (array_values($parameters) as $key => $value) {
-            $stmt->bindValue($key + 1, $value, Argument::any())->willReturn();
+            foreach (array_values($parameters) as $key => $value) {
+                $stmt->bindValue($key + 1, $value, Argument::any())->willReturn();
+            }
+
+            $stmt->execute()->willReturn();
+            $stmt->setFetchMode(FetchMode::ASSOCIATIVE, Argument::cetera())->willReturn();
+            $stmt->closeCursor()->willReturn();
+
+            $stmt->fetchAll(FetchMode::ASSOCIATIVE, Argument::cetera())->willReturn($results);
+            $stmt->fetchAll()->willReturn($results);
+
+            $results[] = null;
+            $stmt->fetch(FetchMode::ASSOCIATIVE, Argument::cetera())->willReturn(...$results);
+
+            if (! method_exists(Statement::class, 'fetchAssociative')) {
+                return;
+            }
+
+            $stmt->fetchAssociative()->willReturn(...$results);
+        } elseif (empty($parameters)) {
+            $this->_innerConnection->query(new StringMatchesToken($query))
+                ->willReturn(new DummyResult($results));
+        } else {
+            $this->_innerConnection->prepare(new StringMatchesToken($query))
+                ->willReturn($stmt = $this->prophesize(Statement::class));
+
+            foreach (array_values($parameters) as $key => $value) {
+                $stmt->bindValue($key + 1, $value, Argument::any())->willReturn();
+            }
+
+            $stmt->execute()->willReturn(new DummyResult($results));
         }
-
-        $stmt->execute()->willReturn();
-        $stmt->setFetchMode(FetchMode::ASSOCIATIVE, Argument::cetera())->willReturn();
-        $stmt->closeCursor()->willReturn();
-
-        $stmt->fetchAll(FetchMode::ASSOCIATIVE, Argument::cetera())->willReturn($results);
-        $stmt->fetchAll()->willReturn($results);
-
-        $results[] = null;
-        $stmt->fetch(FetchMode::ASSOCIATIVE, Argument::cetera())->willReturn(...$results);
-
-        if (! method_exists(Statement::class, 'fetchAssociative')) {
-            return;
-        }
-
-        $stmt->fetchAssociative()->willReturn(...$results);
     }
 
     /**
@@ -147,9 +162,11 @@ trait EntityManagerTrait
             $stmt->bindValue($key + 1, $value, Argument::any())->willReturn();
         }
 
-        $stmt->execute()->willReturn();
-
-        $results[] = null;
-        $stmt->rowCount()->willReturn($rowCount);
+        if (method_exists(Statement::class, 'setFetchMode')) {
+            $stmt->execute()->willReturn();
+            $stmt->rowCount()->willReturn($rowCount);
+        } else {
+            $stmt->execute()->willReturn(new DummyResult([]));
+        }
     }
 }
