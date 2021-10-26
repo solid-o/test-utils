@@ -5,12 +5,16 @@ declare(strict_types=1);
 namespace Solido\TestUtils\Symfony;
 
 use Generator;
+use LogicException;
 use PHPUnit\Framework\Constraint\LogicalNot;
 use Solido\Common\Urn\Urn;
 use Solido\PolicyChecker\DataCollector\PolicyCheckerDataCollector;
 use Solido\PolicyChecker\Test\TestPolicyChecker;
 use Solido\TestUtils\Constraint\ResponseHasHeaders;
+use Solido\TestUtils\Constraint\ResponseHeaderSame;
+use Solido\TestUtils\Constraint\ResponseSubset;
 use Solido\TestUtils\Constraint\SecurityPolicyChecked;
+use Solido\TestUtils\HttpTestCaseInterface;
 use Solido\TestUtils\ResponseStatusTrait;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\BrowserKit\Request as BrowserKitRequest;
@@ -22,6 +26,8 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\VarDumper\Cloner\Data;
 
 use function assert;
+use function gc_collect_cycles;
+use function gc_mem_caches;
 use function implode;
 use function in_array;
 use function is_array;
@@ -184,6 +190,24 @@ trait FunctionalTestTrait
         return self::request($url, 'DELETE', null, $additionalHeaders, [], $server);
     }
 
+    public function buildRequest(): \Solido\TestUtils\Symfony\Request
+    {
+        if (! $this instanceof HttpTestCaseInterface) {
+            throw new LogicException(sprintf('You need to implement %s in order to use contract testing methods.', HttpTestCaseInterface::class));
+        }
+
+        return new \Solido\TestUtils\Symfony\Request($this);
+    }
+
+    /**
+     * @postCondition
+     */
+    public function checkContracts(): void
+    {
+        gc_collect_cycles();
+        gc_mem_caches();
+    }
+
     /**
      * Performs a request.
      *
@@ -192,7 +216,7 @@ trait FunctionalTestTrait
      * @param UploadedFile[] $files
      * @param array<string, string> $server
      */
-    private static function request(
+    public static function request(
         string $url,
         string $method,
         $requestData = null,
@@ -296,6 +320,19 @@ trait FunctionalTestTrait
         $checked = $data->getValue(true);
 
         self::assertThat($policies, new SecurityPolicyChecked(...$checked));
+    }
+
+    /**
+     * @param string|array<string|int, mixed>|object $subset
+     */
+    public static function assertResponseContainsSubset($subset, string $message = ''): void
+    {
+        self::assertThat(static::getResponse(), new ResponseSubset($subset), $message);
+    }
+
+    public static function assertResponseHeaderSame(string $headerName, string $headerValue, string $message = ''): void
+    {
+        self::assertThat(static::getResponse(), new ResponseHeaderSame($headerName, $headerValue), $message);
     }
 
     public static function assertResponseHasHeader(string $header, string $message = ''): void
