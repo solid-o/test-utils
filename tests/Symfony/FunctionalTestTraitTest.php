@@ -5,11 +5,13 @@ declare(strict_types=1);
 namespace Solido\TestUtils\Tests\Symfony;
 
 use PHPUnit\Framework\Assert;
+use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\ExpectationFailedException;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Prophecy\PhpUnit\ProphecyTrait;
 use Solido\PolicyChecker\DataCollector\PolicyCheckerDataCollector;
+use Solido\TestUtils\HttpTestCaseInterface;
 use Solido\TestUtils\Symfony\FunctionalTestTrait;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\BrowserKit\Request as BrowserKitRequest;
@@ -72,6 +74,67 @@ class FunctionalTestTraitTest extends TestCase
         $client->getResponse()->willReturn(new Response());
 
         ConcreteFunctionalTestTrait::request('/', 'GET', null, ['Accept' => 'application/json']);
+    }
+
+    public function testRequestContractShouldPass(): void
+    {
+        $client = $this->prophesize(KernelBrowser::class);
+        ConcreteFunctionalTestTrait::setClient($client->reveal());
+
+        $client->request(
+            'GET',
+            '/',
+            [],
+            [],
+            ['HTTP_ACCEPT' => 'application/json', 'CONTENT_TYPE' => 'application/json'],
+            null
+        )->shouldBeCalled();
+
+        $client->enableProfiler()->shouldBeCalled();
+        $client->getResponse()->willReturn(new Response());
+
+        $testCase = new ConcreteFunctionalTestTrait();
+        $testCase->buildRequest()
+            ->withPath('/')
+            ->withMethod('GET')
+            ->withHeader('Accept', 'application/json')
+            ->expectResponse()
+            ->shouldHaveSuccessStatus();
+
+        $testCase->checkContracts();
+    }
+
+    public function testRequestContractShouldFail(): void
+    {
+        $client = $this->prophesize(KernelBrowser::class);
+        ConcreteFunctionalTestTrait::setClient($client->reveal());
+
+        $client->request(
+            'GET',
+            '/',
+            [],
+            [],
+            ['HTTP_ACCEPT' => 'application/json', 'CONTENT_TYPE' => 'application/json'],
+            null
+        )->shouldBeCalled();
+
+        $client->enableProfiler()->shouldBeCalled();
+        $client->getResponse()->willReturn(new Response());
+
+        $testCase = new ConcreteFunctionalTestTrait();
+        $testCase->buildRequest()
+            ->withPath('/')
+            ->withMethod('GET')
+            ->withHeader('Accept', 'application/json')
+            ->expectResponse()
+            ->shouldBeJson();
+
+        try {
+            $testCase->checkContracts();
+            self::fail('Expected fail');
+        } catch (AssertionFailedError $e) {
+            self::assertEquals('Failed asserting that Symfony\Component\HttpFoundation\Response Object (...) has json content type.', $e->toString());
+        }
     }
 
     public function testOnPreRequestIsCalled(): void
@@ -139,10 +202,10 @@ class FunctionalTestTraitTest extends TestCase
     }
 }
 
-class ConcreteFunctionalTestTrait extends Assert
+class ConcreteFunctionalTestTrait extends Assert implements HttpTestCaseInterface
 {
     use FunctionalTestTrait {
-        request as public;
+        buildRequest as public;
     }
 
     public static Response $response;

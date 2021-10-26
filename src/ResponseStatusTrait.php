@@ -14,8 +14,7 @@ trait ResponseStatusTrait
 {
     public static function assertResponseIs(int $expectedCode, string $message = ''): void
     {
-        $response = static::getResponse();
-        self::assertThat($response, new ResponseStatusCode($expectedCode), $message);
+        self::assertThat(static::getResponse(), new ResponseStatusCode($expectedCode), $message);
     }
 
     public static function assertResponseIsOk(string $message = ''): void

@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace Solido\TestUtils\Tests\Symfony;
 
+use Solido\TestUtils\HttpTestCaseInterface;
 use Solido\TestUtils\Symfony\FunctionalTestTrait;
 use Solido\TestUtils\Tests\fixtures\TestKernel;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
-class WebFunctionalTestTraitTest extends WebTestCase
+class WebFunctionalTestTraitTest extends WebTestCase implements HttpTestCaseInterface
 {
     use FunctionalTestTrait;
 
