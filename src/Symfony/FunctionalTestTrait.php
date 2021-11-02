@@ -17,6 +17,7 @@ use Solido\TestUtils\Constraint\SecurityPolicyChecked;
 use Solido\TestUtils\HttpTestCaseInterface;
 use Solido\TestUtils\ResponseStatusTrait;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
+use Symfony\Component\BrowserKit\AbstractBrowser;
 use Symfony\Component\BrowserKit\Request as BrowserKitRequest;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\HeaderBag;
@@ -48,7 +49,7 @@ trait FunctionalTestTrait
     use JsonResponseTrait;
     use ResponseStatusTrait;
 
-    private static ?KernelBrowser $client = null;
+    private static ?AbstractBrowser $client = null;
     private static string $authorizationToken;
 
     /**
@@ -241,7 +242,7 @@ trait FunctionalTestTrait
 
         static::ensureKernelShutdown();
         static::$client = static::createClient();
-        static::$client->enableProfiler();
+        static::enableProfiler();
 
         ob_start();
         static::$client->request(
@@ -343,6 +344,11 @@ trait FunctionalTestTrait
     public static function assertResponseHasNotHeader(string $header, string $message = ''): void
     {
         self::assertThat(static::getResponse(), new LogicalNot(new ResponseHasHeaders([$header])), $message);
+    }
+
+    protected static function enableProfiler(): void
+    {
+        static::$client->enableProfiler();
     }
 
     private static function getClient(): KernelBrowser

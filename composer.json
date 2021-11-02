@@ -24,6 +24,7 @@
         "doctrine/dbal": "^2.10 || ^3.0",
         "doctrine/mongodb-odm": "^2.0",
         "doctrine/orm": "^2.7",
+        "laravel/framework": "*",
         "nyholm/psr7": "^1.0",
         "phpunit/phpunit": "^9.4",
         "refugis/doctrine-extra": "^2.1.0",
