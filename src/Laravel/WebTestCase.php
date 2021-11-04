@@ -28,13 +28,13 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Throwable;
 
-use function Safe\array_flip;
 use function assert;
 use function class_exists;
 use function class_uses_recursive;
 use function debug_backtrace;
 use function func_num_args;
 use function get_class;
+use function Safe\array_flip;
 use function Safe\getcwd;
 use function Safe\sprintf;
 use function trigger_error;
