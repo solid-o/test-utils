@@ -4,35 +4,168 @@ declare(strict_types=1);
 
 namespace Solido\TestUtils\Laravel;
 
+use Illuminate\Contracts\Console\Kernel as ConsoleKernelContract;
 use Illuminate\Contracts\Debug\ExceptionHandler;
 use Illuminate\Contracts\Http\Kernel as HttpKernelContract;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Application;
+use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use Illuminate\Foundation\Exceptions\Handler;
+use Illuminate\Foundation\Testing\DatabaseMigrations;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Foundation\Testing\WithoutEvents;
+use Illuminate\Foundation\Testing\WithoutMiddleware;
 use LogicException;
 use PHPUnit\Framework\TestCase;
+use ReflectionClass;
 use RuntimeException;
+use stdClass;
 use Symfony\Component\BrowserKit\AbstractBrowser;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
+use Throwable;
 
+use function Safe\array_flip;
 use function assert;
 use function class_exists;
+use function class_uses_recursive;
+use function debug_backtrace;
 use function func_num_args;
+use function get_class;
 use function Safe\getcwd;
 use function Safe\sprintf;
+use function trigger_error;
+
+use const DEBUG_BACKTRACE_PROVIDE_OBJECT;
+use const E_USER_NOTICE;
 
 class WebTestCase extends TestCase
 {
     protected static ?Application $kernel = null;
     protected static bool $booted = false;
     protected static string $kernelClass;
+    protected static string $consoleKernelClass;
+
+    /**
+     * The callbacks that should be run after the application is created.
+     *
+     * @var callable[]
+     */
+    protected static array $afterApplicationCreatedCallbacks = [];
+
+    /**
+     * The callbacks that should be run before the application is destroyed.
+     *
+     * @var callable[]
+     */
+    protected static array $beforeApplicationDestroyedCallbacks = [];
+
+    /**
+     * The exception thrown while running an application destruction callback.
+     */
+    protected static ?Throwable $callbackException = null;
+
+    /**
+     * Register a callback to be run after the application is created.
+     */
+    public static function afterApplicationCreated(callable $callback): void
+    {
+        static::$afterApplicationCreatedCallbacks[] = $callback;
+
+        if (! static::$booted) {
+            return;
+        }
+
+        $callback();
+    }
+
+    /**
+     * @param string | mixed $name
+     *
+     * @return mixed
+     */
+    public function __get($name)
+    {
+        if ($name === 'app') {
+            static::bootKernel();
+            $returnValue = &static::$kernel;
+        } else {
+            $reflector = new ReflectionClass(static::class);
+            if (! $reflector->hasProperty($name)) {
+                $backtrace = debug_backtrace(0, 1);
+                trigger_error(
+                    sprintf(
+                        'Undefined property: %s::$%s in %s on line %s',
+                        $reflector->getName(),
+                        $name,
+                        $backtrace[0]['file'],
+                        $backtrace[0]['line']
+                    ),
+                    E_USER_NOTICE
+                );
+
+                return $this->$name;
+            }
+
+            $targetObject = $this;
+            $accessor = static function & () use ($targetObject, $name) {
+                return $targetObject->$name;
+            };
+            $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2);
+            $scopeObject = $backtrace[1]['object'] ?? new stdClass();
+            $accessor = $accessor->bindTo($scopeObject, get_class($scopeObject));
+            $returnValue = &$accessor();
+        }
+
+        return $returnValue;
+    }
 
     protected function tearDown(): void
     {
         static::ensureKernelShutdown();
         static::$kernel = null;
         static::$booted = false;
+
+        static::$afterApplicationCreatedCallbacks = [];
+        static::$beforeApplicationDestroyedCallbacks = [];
+        static::$callbackException = null;
+    }
+
+    /**
+     * Boot the testing helper traits.
+     */
+    protected function setUpTraits(): void
+    {
+        $uses = array_flip(class_uses_recursive(static::class));
+
+        if (isset($uses[RefreshDatabase::class])) {
+            $this->refreshDatabase(); /* @phpstan-ignore-line */
+        }
+
+        if (isset($uses[DatabaseMigrations::class])) {
+            $this->runDatabaseMigrations(); /* @phpstan-ignore-line */
+        }
+
+        if (isset($uses[DatabaseTransactions::class])) {
+            $this->beginDatabaseTransaction(); /* @phpstan-ignore-line */
+        }
+
+        if (isset($uses[WithoutMiddleware::class])) {
+            $this->disableMiddlewareForAllTests(); /* @phpstan-ignore-line */
+        }
+
+        if (isset($uses[WithoutEvents::class])) {
+            $this->disableEventsForAllTests(); /* @phpstan-ignore-line */
+        }
+
+        if (! isset($uses[WithFaker::class])) {
+            return;
+        }
+
+        $this->setUpFaker(); /* @phpstan-ignore-line */
     }
 
     /**
@@ -47,11 +180,23 @@ class WebTestCase extends TestCase
             static::$kernelClass = static::getKernelClass();
         }
 
+        if (! isset(static::$consoleKernelClass)) {
+            static::$consoleKernelClass = static::getConsoleKernelClass();
+        }
+
         static::$kernel->singleton(HttpKernelContract::class, static::$kernelClass);
+        static::$kernel->singleton(ConsoleKernelContract::class, static::$consoleKernelClass);
+
         static::$kernel->singleton(
             ExceptionHandler::class,
             $_SERVER['EXCEPTION_HANDLER_CLASS'] ?? $_ENV['EXCEPTION_HANDLER_CLASS'] ?? Handler::class
         );
+
+        foreach (static::$afterApplicationCreatedCallbacks as $callback) {
+            $callback();
+        }
+
+        Model::setEventDispatcher(static::$kernel->get('events'));
 
         static::$booted = true;
 
@@ -72,8 +217,15 @@ class WebTestCase extends TestCase
             return;
         }
 
+        static::callBeforeApplicationDestroyedCallbacks();
+
+        static::$kernel->flush();
         static::$kernel->terminate();
         static::$booted = false;
+
+        if (self::$callbackException !== null) {
+            throw self::$callbackException;
+        }
     }
 
     /**
@@ -104,12 +256,25 @@ class WebTestCase extends TestCase
     protected static function getKernelClass(): string
     {
         if (! isset($_SERVER['KERNEL_CLASS']) && ! isset($_ENV['KERNEL_CLASS'])) {
-            throw new LogicException(sprintf('You must set the KERNEL_CLASS environment variable to the fully-qualified class name of your Kernel in phpunit.xml / phpunit.xml.dist or override the "%1$s::createKernel()" or "%1$s::getKernelClass()" method.', static::class));
+            throw new LogicException(sprintf('You must set the KERNEL_CLASS environment variable to the fully-qualified class name of your Kernel in phpunit.xml / phpunit.xml.dist or override the "%1$s::getKernelClass()" method.', static::class));
         }
 
         $class = $_ENV['KERNEL_CLASS'] ?? $_SERVER['KERNEL_CLASS'];
         if (! class_exists($class)) {
-            throw new RuntimeException(sprintf('Class "%s" doesn\'t exist or cannot be autoloaded. Check that the KERNEL_CLASS value in phpunit.xml matches the fully-qualified class name of your Kernel or override the "%s::createKernel()" method.', $class, static::class));
+            throw new RuntimeException(sprintf('Class "%s" doesn\'t exist or cannot be autoloaded. Check that the KERNEL_CLASS value in phpunit.xml matches the fully-qualified class name of your Kernel.', $class));
+        }
+
+        return $class;
+    }
+
+    /**
+     * @return string The Kernel class name
+     */
+    protected static function getConsoleKernelClass(): string
+    {
+        $class = $_ENV['CONSOLE_KERNEL_CLASS'] ?? $_SERVER['CONSOLE_KERNEL_CLASS'] ?? ConsoleKernel::class;
+        if (! class_exists($class)) {
+            throw new RuntimeException(sprintf('Class "%s" doesn\'t exist or cannot be autoloaded. Check that the CONSOLE_KERNEL_CLASS value in phpunit.xml matches the fully-qualified class name of your Kernel.', $class));
         }
 
         return $class;
@@ -130,6 +295,30 @@ class WebTestCase extends TestCase
         }
 
         return $client;
+    }
+
+    /**
+     * Register a callback to be run before the application is destroyed.
+     */
+    protected static function beforeApplicationDestroyed(callable $callback): void
+    {
+        static::$beforeApplicationDestroyedCallbacks[] = $callback;
+    }
+
+    /**
+     * Execute the application's pre-destruction callbacks.
+     */
+    protected static function callBeforeApplicationDestroyedCallbacks(): void
+    {
+        foreach (static::$beforeApplicationDestroyedCallbacks as $callback) {
+            try {
+                $callback();
+            } catch (Throwable $e) { /* @phpstan-ignore-line */
+                if (! static::$callbackException) {
+                    static::$callbackException = $e;
+                }
+            }
+        }
     }
 
     private static function getResponse(): Response
