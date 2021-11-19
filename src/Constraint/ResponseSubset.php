@@ -64,15 +64,20 @@ final class ResponseSubset extends ResponseConstraint
     protected function failureDescription($other): string
     {
         try {
-            self::getResponseAdapter($other);
+            $adapter = self::getResponseAdapter($other);
         } catch (UnsupportedResponseObjectException $e) {
             return sprintf('%s is a response object', $this->exporter()->shortenedExport($other));
         }
 
+        $otherContent = $this->isJson($adapter)
+            ? json_decode($adapter->getContent(), true, 512, JSON_THROW_ON_ERROR)
+            : $adapter->getContent();
+
         return sprintf(
-            '%s contains subset %s',
+            '%s contains subset %s. Actual response content is: %s',
             $this->exporter()->shortenedExport($other),
             $this->exporter()->export($this->subset),
+            $this->exporter()->export($otherContent),
         );
     }
 
