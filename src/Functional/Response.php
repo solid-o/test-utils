@@ -8,6 +8,7 @@ use PHPUnit\Framework\Assert;
 use Solido\TestUtils\Constraint\JsonResponse;
 use Solido\TestUtils\Constraint\ResponseHasHeaders;
 use Solido\TestUtils\Constraint\ResponseHeaderSame;
+use Solido\TestUtils\Constraint\ResponseLength;
 use Solido\TestUtils\Constraint\ResponseStatusCode;
 use Solido\TestUtils\Constraint\ResponseSubset;
 
@@ -27,6 +28,7 @@ class Response
     /** @var callable(): object */
     private $performer;
     private bool $checked = false;
+    private object $response;
 
     private ?int $statusCode;
     private ?int $statusCodeClass;
@@ -37,6 +39,7 @@ class Response
 
     /** @var string|array<(string|int), mixed>|null */
     private $minimumSubset;
+    private ?int $length;
 
     public function __construct(callable $performer)
     {
@@ -46,6 +49,7 @@ class Response
         $this->headers = [];
         $this->type = null;
         $this->minimumSubset = null;
+        $this->length = null;
     }
 
     public function __destruct()
@@ -125,6 +129,20 @@ class Response
         return $this;
     }
 
+    public function shouldHaveLength(int $length): self
+    {
+        $this->length = $length;
+
+        return $this;
+    }
+
+    public function getResponse(): object
+    {
+        $this->check();
+
+        return $this->response;
+    }
+
     public function check(): void
     {
         if ($this->checked) {
@@ -132,7 +150,7 @@ class Response
         }
 
         $this->checked = true;
-        $response = ($this->performer)();
+        $this->response = $response = ($this->performer)();
 
         if ($this->statusCode !== null) {
             Assert::assertThat($response, new ResponseStatusCode($this->statusCode));
@@ -157,10 +175,14 @@ class Response
             Assert::assertThat($response, new JsonResponse());
         }
 
-        if ($this->minimumSubset === null) {
+        if ($this->minimumSubset !== null) {
+            Assert::assertThat($response, new ResponseSubset($this->minimumSubset));
+        }
+
+        if ($this->length === null) {
             return;
         }
 
-        Assert::assertThat($response, new ResponseSubset($this->minimumSubset));
+        Assert::assertThat($response, new ResponseLength($this->length));
     }
 }

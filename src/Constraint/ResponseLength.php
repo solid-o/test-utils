@@ -4,33 +4,25 @@ declare(strict_types=1);
 
 namespace Solido\TestUtils\Constraint;
 
-use ArrayObject;
 use Solido\Common\Exception\UnsupportedResponseObjectException;
-use Traversable;
 
-use function is_array;
-use function is_string;
-use function iterator_to_array;
+use function array_is_list;
+use function count;
 use function json_decode;
-use function Safe\array_replace_recursive;
+use function mb_strlen;
 use function Safe\sprintf;
-use function str_contains;
 
 use const JSON_THROW_ON_ERROR;
 
-final class ResponseSubset extends ResponseConstraint
+final class ResponseLength extends ResponseConstraint
 {
     use ResponseJsonContentTrait;
 
-    /** @var string|array<string|int, mixed>|object */
-    private $subset;
+    private int $length;
 
-    /**
-     * @param string|array<string|int, mixed>|object $subset
-     */
-    public function __construct($subset)
+    public function __construct(int $length)
     {
-        $this->subset = $subset;
+        $this->length = $length;
     }
 
     /**
@@ -45,15 +37,12 @@ final class ResponseSubset extends ResponseConstraint
         }
 
         if (! $this->isJson($adapter)) {
-            return is_string($this->subset) && str_contains($adapter->getContent(), $this->subset);
+            return mb_strlen($adapter->getContent()) === $this->length;
         }
 
         $other = json_decode($adapter->getContent(), true, 512, JSON_THROW_ON_ERROR);
-        $this->subset = $this->toArray($this->subset);
 
-        $patched = array_replace_recursive($other, $this->subset);
-
-        return $other === $patched;
+        return array_is_list($other) && count($other) === $this->length;
     }
 
     /**
@@ -72,9 +61,9 @@ final class ResponseSubset extends ResponseConstraint
             : $adapter->getContent();
 
         return sprintf(
-            '%s contains subset %s. Actual response content is: %s',
+            '%s has length %u. Actual response content is: %s',
             $this->exporter()->shortenedExport($other),
-            $this->exporter()->export($this->subset),
+            $this->length,
             $this->exporter()->export($otherContent),
         );
     }
@@ -82,30 +71,8 @@ final class ResponseSubset extends ResponseConstraint
     public function toString(): string
     {
         return sprintf(
-            'contains subset %s',
-            $this->exporter()->export($this->subset),
+            'has length %u',
+            $this->length,
         );
-    }
-
-    /**
-     * @param mixed $other
-     *
-     * @return array<string|int, mixed>
-     */
-    private function toArray($other): array
-    {
-        if (is_array($other)) {
-            return $other;
-        }
-
-        if ($other instanceof ArrayObject) {
-            return $other->getArrayCopy();
-        }
-
-        if ($other instanceof Traversable) {
-            return iterator_to_array($other);
-        }
-
-        return (array) $other;
     }
 }

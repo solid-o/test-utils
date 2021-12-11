@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace Solido\TestUtils\Functional;
 
 use Psr\Http\Message\UploadedFileInterface;
+use Symfony\Component\HttpFoundation\Request as HttpFoundationRequest;
+
+use function Safe\sprintf;
 
 abstract class Request
 {
@@ -49,6 +52,13 @@ abstract class Request
         $this->headers[$name] = (array) $value;
 
         return $this;
+    }
+
+    public function withAcceptHeader(string $format = 'json', string $version = ''): self
+    {
+        $mime = HttpFoundationRequest::getMimeTypes($format)[0] ?? 'text/plain';
+
+        return $this->withHeader('Accept', empty($version) ? $mime : sprintf('%s; version=%s', $mime, $version));
     }
 
     /**
