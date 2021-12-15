@@ -197,6 +197,8 @@ trait FunctionalTestTrait
             throw new LogicException(sprintf('You need to implement %s in order to use contract testing methods.', HttpTestCaseInterface::class));
         }
 
+        $this->checkContracts();
+
         return new \Solido\TestUtils\Symfony\Request($this);
     }
 
@@ -312,13 +314,27 @@ trait FunctionalTestTrait
      */
     public static function assertGrantHasBeenChecked(...$policies): void
     {
-        $profile = self::$client->getProfile();
-        $securityCollector = $profile->getCollector('security');
-        assert($securityCollector instanceof PolicyCheckerDataCollector);
+        $checked = (static function (): ?array {
+            $client = self::$client;
+            if (! $client instanceof KernelBrowser) {
+                return null;
+            }
 
-        $data = $securityCollector->getPolicyPermissions();
-        assert($data instanceof Data);
-        $checked = $data->getValue(true);
+            $profile = $client->getProfile();
+            $securityCollector = $profile->getCollector('security');
+            if (! $securityCollector instanceof PolicyCheckerDataCollector) {
+                return null;
+            }
+
+            $data = $securityCollector->getPolicyPermissions();
+            assert($data instanceof Data);
+
+            return $data->getValue(true);
+        })();
+
+        if ($checked === null) {
+            self::markTestIncomplete('Cannot assert on checked grant policies: profile informations not available or security policy checker component not installed/enabled.');
+        }
 
         self::assertThat($policies, new SecurityPolicyChecked(...$checked));
     }
