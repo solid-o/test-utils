@@ -20,7 +20,7 @@ class JsonResponsePropertyEqualsTest extends TestCase
 
         if (! $expected) {
             $this->expectException(ExpectationFailedException::class);
-            $this->expectExceptionMessage($message);
+            $this->expectExceptionMessageMatches('/^' . preg_quote($message, '/') . '$/');
         } else {
             $this->addToAssertionCount(1);
         }
@@ -107,6 +107,21 @@ class JsonResponsePropertyEqualsTest extends TestCase
             '.',
             1,
             'Failed asserting that Symfony\Component\HttpFoundation\Response Object (...) is valid JSON response (Syntax error, malformed JSON).',
+        ];
+
+        yield [
+            true,
+            new Response('[{"foo":{"bar":{"bar":true}}}]', Response::HTTP_OK, ['Content-Type' => 'application/json']),
+            '[0].foo.bar.bar',
+            true,
+        ];
+
+        yield [
+            false,
+            new Response('[{"foo":{"bar":{"bar":true}}}]', Response::HTTP_OK, ['Content-Type' => 'application/json']),
+            '[0].foo.foo.baz',
+            true,
+            'Error reading property "[0].foo.foo.baz" at path [0] -> foo -> foo [ERROR. Available keys: "bar"]'
         ];
     }
 

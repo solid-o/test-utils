@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Solido\TestUtils\Functional;
 
 use PHPUnit\Framework\Assert;
+use Solido\Common\AdapterFactory;
 use Solido\TestUtils\Constraint\JsonResponse;
+use Solido\TestUtils\Constraint\JsonResponseTrait;
 use Solido\TestUtils\Constraint\ResponseHasHeaders;
 use Solido\TestUtils\Constraint\ResponseHeaderSame;
 use Solido\TestUtils\Constraint\ResponseLength;
@@ -13,10 +15,15 @@ use Solido\TestUtils\Constraint\ResponseStatusCode;
 use Solido\TestUtils\Constraint\ResponseSubset;
 
 use function array_keys;
+use function json_decode;
 use function range;
+
+use const JSON_THROW_ON_ERROR;
 
 class Response
 {
+    use JsonResponseTrait;
+
     private const STATUS_CODE_CLASS_INFORMATIONAL = 100;
     private const STATUS_CODE_CLASS_SUCCESS = 200;
     private const STATUS_CODE_CLASS_REDIRECTION = 300;
@@ -141,6 +148,21 @@ class Response
         $this->check();
 
         return $this->response;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getProperty(string $propertyPath)
+    {
+        $this->shouldBeJson();
+
+        $adapterFactory = new AdapterFactory();
+        $response = $adapterFactory->createResponseAdapter($this->getResponse());
+
+        $content = json_decode($response->getContent(), false, 512, JSON_THROW_ON_ERROR);
+
+        return self::readProperty(self::getPropertyAccessor(), $content, $propertyPath);
     }
 
     public function check(): void

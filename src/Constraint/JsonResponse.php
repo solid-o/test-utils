@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace Solido\TestUtils\Constraint;
 
+use JsonException;
 use PHPUnit\Framework\Constraint\JsonMatchesErrorMessageProvider;
 use Solido\Common\Exception\UnsupportedResponseObjectException;
 
 use function json_decode;
-use function json_last_error;
 use function Safe\preg_match;
 use function Safe\sprintf;
 
-use const JSON_ERROR_NONE;
+use const JSON_THROW_ON_ERROR;
 
 final class JsonResponse extends ResponseConstraint
 {
@@ -31,14 +31,13 @@ final class JsonResponse extends ResponseConstraint
         }
 
         $content = $adapter->getContent();
-        if ($content === '') {
+        try {
+            json_decode($content, false, 512, JSON_THROW_ON_ERROR);
+
+            return true;
+        } catch (JsonException $e) {
             return false;
         }
-
-        /** @phpstan-ignore-next-line */
-        @json_decode($content);
-
-        return json_last_error() === JSON_ERROR_NONE;
     }
 
     /**
@@ -57,14 +56,14 @@ final class JsonResponse extends ResponseConstraint
         }
 
         $content = $adapter->getContent();
+        $error = 'Empty response';
+
         if ($content !== '') {
-            /** @phpstan-ignore-next-line */
-            json_decode($content);
-            $error = JsonMatchesErrorMessageProvider::determineJsonError(
-                (string) json_last_error()
-            );
-        } else {
-            $error = 'Empty response';
+            try {
+                json_decode($content, false, 512, JSON_THROW_ON_ERROR);
+            } catch (JsonException $e) {
+                $error = JsonMatchesErrorMessageProvider::determineJsonError((string) $e->getCode());
+            }
         }
 
         return sprintf(

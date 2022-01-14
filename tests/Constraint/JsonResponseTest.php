@@ -7,6 +7,7 @@ namespace Solido\TestUtils\Tests\Constraint;
 use PHPUnit\Framework\ExpectationFailedException;
 use PHPUnit\Framework\TestCase;
 use Solido\TestUtils\Constraint\JsonResponse;
+use stdClass;
 use Symfony\Component\HttpFoundation\Response;
 
 class JsonResponseTest extends TestCase
@@ -23,14 +24,17 @@ class JsonResponseTest extends TestCase
      */
     public function testMatches($expected, $response, $message = ''): void
     {
-        if (! $expected) {
-            $this->expectException(ExpectationFailedException::class);
-            $this->expectExceptionMessage($message);
-        } else {
+        if ($expected) {
             $this->addToAssertionCount(1);
         }
 
-        $this->constraint->evaluate($response);
+        try {
+            $this->constraint->evaluate($response);
+        } catch (ExpectationFailedException $e) {
+            self::assertEquals($message, $e->getMessage());
+        } finally {
+            self::assertEquals(JSON_ERROR_NONE, json_last_error());
+        }
     }
 
     public function matchesProvider(): iterable
@@ -38,11 +42,17 @@ class JsonResponseTest extends TestCase
         yield [false, null, 'Failed asserting that null is a response object.'];
         yield [false, true, 'Failed asserting that true is a response object.'];
         yield [false, '', "Failed asserting that '' is a response object."];
+        yield [false, new stdClass(), 'Failed asserting that stdClass Object () is a response object.'];
         yield [false, new Response(), 'Failed asserting that Symfony\Component\HttpFoundation\Response Object (...) has json content type.'];
         yield [
             false,
             new Response('', Response::HTTP_OK, ['Content-Type' => 'application/json']),
             'Failed asserting that Symfony\Component\HttpFoundation\Response Object (...) is valid JSON response (Empty response).',
+        ];
+        yield [
+            false,
+            new Response('{ test: foo', Response::HTTP_OK, ['Content-Type' => 'application/json']),
+            'Failed asserting that Symfony\Component\HttpFoundation\Response Object (...) is valid JSON response (Syntax error, malformed JSON).',
         ];
 
         yield [
