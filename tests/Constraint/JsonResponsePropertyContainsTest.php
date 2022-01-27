@@ -77,6 +77,17 @@ class JsonResponsePropertyContainsTest extends TestCase
 
         yield [
             false,
+            new Response('["42"]', Response::HTTP_OK, ['Content-Type' => 'application/json']),
+            '.',
+            42,
+            <<<'ERR'
+            Failed asserting that property "\." \(Array &0 \(
+                0 => '42'
+            \)\) contains 42\.
+            ERR];
+
+        yield [
+            false,
             new Response('{"foo":"bar"}', Response::HTTP_OK, ['Content-Type' => 'application/json']),
             '.',
             ['foo' => 'foo', 'bar' => 'bar'],

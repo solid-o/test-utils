@@ -30,7 +30,9 @@ class JsonResponseTest extends TestCase
 
         try {
             $this->constraint->evaluate($response);
+            self::assertTrue($expected);
         } catch (ExpectationFailedException $e) {
+            self::assertFalse($expected);
             self::assertEquals($message, $e->getMessage());
         } finally {
             self::assertEquals(JSON_ERROR_NONE, json_last_error());
@@ -53,6 +55,11 @@ class JsonResponseTest extends TestCase
             false,
             new Response('{ test: foo', Response::HTTP_OK, ['Content-Type' => 'application/json']),
             'Failed asserting that Symfony\Component\HttpFoundation\Response Object (...) is valid JSON response (Syntax error, malformed JSON).',
+        ];
+        yield [
+            false,
+            new Response('{}', Response::HTTP_OK, ['Content-Type' => 'application/not-a-json']),
+            'Failed asserting that Symfony\Component\HttpFoundation\Response Object (...) has json content type.',
         ];
 
         yield [

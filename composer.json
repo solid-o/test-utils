@@ -58,6 +58,11 @@
         "platform": {
             "ext-mongo": "1.6.16",
             "ext-mongodb": "1.5.0"
+        },
+        "allow-plugins": {
+            "composer/package-versions-deprecated": true,
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "phpstan/extension-installer": true
         }
     },
     "extra": {

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Solido\TestUtils\Doctrine\ORM;
 
-use Doctrine\DBAL\Driver\FetchUtils;
 use Doctrine\DBAL\Driver\Result;
 
 use function array_values;
@@ -18,15 +17,17 @@ final class DummyResult implements Result
 {
     /** @var mixed[] */
     private array $data;
+    private int $rowCount;
     private int $columnCount = 0;
     private int $num = 0;
 
     /**
      * @param mixed[] $data
      */
-    public function __construct(array $data)
+    public function __construct(array $data, ?int $rowCount = null)
     {
         $this->data = $data;
+        $this->rowCount = $rowCount ?? count($data);
         if (count($data) === 0) {
             return;
         }
@@ -75,7 +76,12 @@ final class DummyResult implements Result
      */
     public function fetchAllNumeric(): array
     {
-        return FetchUtils::fetchAllNumeric($this);
+        $rows = [];
+        while (($row = $this->fetchNumeric()) !== false) {
+            $rows[] = $row;
+        }
+
+        return $rows;
     }
 
     /**
@@ -83,7 +89,12 @@ final class DummyResult implements Result
      */
     public function fetchAllAssociative(): array
     {
-        return FetchUtils::fetchAllAssociative($this);
+        $rows = [];
+        while (($row = $this->fetchAssociative()) !== false) {
+            $rows[] = $row;
+        }
+
+        return $rows;
     }
 
     /**
@@ -91,12 +102,17 @@ final class DummyResult implements Result
      */
     public function fetchFirstColumn(): array
     {
-        return FetchUtils::fetchFirstColumn($this);
+        $rows = [];
+        while (($row = $this->fetchOne()) !== false) {
+            $rows[] = $row;
+        }
+
+        return $rows;
     }
 
     public function rowCount(): int
     {
-        return count($this->data);
+        return $this->rowCount;
     }
 
     public function columnCount(): int

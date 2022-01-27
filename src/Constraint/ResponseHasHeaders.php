@@ -69,7 +69,7 @@ final class ResponseHasHeaders extends ResponseConstraint
             '%s has %s header%s',
             $this->exporter()->shortenedExport($other),
             count($this->missing) === 1 ?
-                json_encode((string) $this->missing[0], JSON_THROW_ON_ERROR) :
+                json_encode($this->missing[0], JSON_THROW_ON_ERROR) :
                 implode(', ', array_map('json_encode', $this->headers)),
             count($this->missing) === 1 ? '' : 's'
         );
@@ -80,7 +80,7 @@ final class ResponseHasHeaders extends ResponseConstraint
         return sprintf(
             'has %s header%s',
             count($this->headers) === 1 ?
-                json_encode((string) $this->headers[0], JSON_THROW_ON_ERROR) :
+                json_encode($this->headers[0], JSON_THROW_ON_ERROR) :
                 implode(', ', array_map('json_encode', $this->headers)),
             count($this->headers) === 1 ? '' : 's'
         );

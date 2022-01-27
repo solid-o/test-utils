@@ -15,41 +15,53 @@ class MockPlatform extends AbstractPlatform
     /**
      * {@inheritdoc}
      */
-    public function getBooleanTypeDeclarationSQL(array $columnDef): string
+    public function getBooleanTypeDeclarationSQL(array $column): string
     {
-        return '';
+        return 'BOOLEAN';
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getIntegerTypeDeclarationSQL(array $columnDef): string
+    public function getIntegerTypeDeclarationSQL(array $column): string
     {
-        return '';
+        if (! empty($column['autoincrement'])) {
+            return 'SERIAL';
+        }
+
+        return 'INT' . $this->_getCommonIntegerTypeDeclarationSQL($column);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getBigIntTypeDeclarationSQL(array $columnDef): string
+    public function getBigIntTypeDeclarationSQL(array $column): string
     {
-        return '';
+        if (! empty($column['autoincrement'])) {
+            return 'BIGSERIAL';
+        }
+
+        return 'BIGINT' . $this->_getCommonIntegerTypeDeclarationSQL($column);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getSmallIntTypeDeclarationSQL(array $columnDef): string
+    public function getSmallIntTypeDeclarationSQL(array $column): string
     {
-        return '';
+        if (! empty($column['autoincrement'])) {
+            return 'SERIAL';
+        }
+
+        return 'SMALLINT' . $this->_getCommonIntegerTypeDeclarationSQL($column);
     }
 
     /**
      * {@inheritdoc}
      */
-    protected function _getCommonIntegerTypeDeclarationSQL(array $columnDef): string
+    protected function _getCommonIntegerTypeDeclarationSQL(array $column): string
     {
-        return '';
+        return ! empty($column['unsigned']) ? ' UNSIGNED' : '';
     }
 
     protected function initializeDoctrineTypeMappings(): void
@@ -59,7 +71,7 @@ class MockPlatform extends AbstractPlatform
     /**
      * {@inheritdoc}
      */
-    public function getClobTypeDeclarationSQL(array $field): string
+    public function getClobTypeDeclarationSQL(array $column): string
     {
         return 'CLOB';
     }
@@ -70,7 +82,9 @@ class MockPlatform extends AbstractPlatform
     protected function getVarcharTypeDeclarationSQLSnippet($length, $fixed): string
     {
         $type = $fixed ? 'CHAR' : 'VARCHAR';
-        $length ??= 255;
+        if ($length === null || $length === false) {
+            $length = 255;
+        }
 
         return sprintf('%s(%d)', $type, $length);
     }
@@ -80,7 +94,7 @@ class MockPlatform extends AbstractPlatform
      */
     public function getBlobTypeDeclarationSQL(array $field): string
     {
-        return 'DUMMY_BINARY';
+        return 'BLOB';
     }
 
     public function getName(): string
@@ -93,11 +107,11 @@ class MockPlatform extends AbstractPlatform
      */
     protected function getBinaryTypeDeclarationSQLSnippet($length, $fixed): string
     {
-        return sprintf('%s(%d)', $fixed ? 'DUMMY_BINARY' : 'DUMMY_VARBINARY', $length ?: 255);
+        return sprintf('%s(%d)', $fixed ? 'BINARY' : 'VARBINARY', $length ?: 255);
     }
 
     public function getCurrentDatabaseExpression(): string
     {
-        return 'DUMMY_DATABASE()';
+        return 'DATABASE()';
     }
 }

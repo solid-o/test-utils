@@ -31,6 +31,7 @@ class ResponseIsSuccessfulTest extends TestCase
     {
         yield [false, null, 'Failed asserting that null is a response object.'];
         yield [false, new Response('', 500), 'Failed asserting that Symfony\Component\HttpFoundation\Response Object (...) is successful.'];
+        yield [false, new Response('', 300), 'Failed asserting that Symfony\Component\HttpFoundation\Response Object (...) is successful.'];
         yield [true, new Response('', 200)];
     }
 

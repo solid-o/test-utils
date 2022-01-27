@@ -33,11 +33,11 @@ final class JsonResponse extends ResponseConstraint
         $content = $adapter->getContent();
         try {
             json_decode($content, false, 512, JSON_THROW_ON_ERROR);
-
-            return true;
         } catch (JsonException $e) {
             return false;
         }
+
+        return true;
     }
 
     /**

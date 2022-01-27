@@ -37,7 +37,7 @@ final class TestRepositoryFactory implements RepositoryFactory
     /**
      * @param ProphecyInterface|ObjectRepository $repository
      */
-    public function setRepository(EntityManagerInterface $entityManager, string $entityName, $repository): void
+    public function setRepository(EntityManagerInterface $entityManager, string $entityName, object $repository): void
     {
         if ($repository instanceof ProphecyInterface) {
             $repository = $repository->reveal();

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Solido\TestUtils\Doctrine\ORM;
 
 use Cache\Adapter\PHPArray\ArrayCachePool;
+use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\Common\Cache\Psr6\DoctrineProvider;
 use Doctrine\Common\Proxy\AbstractProxyFactory;
@@ -20,23 +21,36 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\ORM\Configuration;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Mapping\ClassMetadata;
+use Doctrine\ORM\Mapping\Entity;
 use Doctrine\ORM\Mapping\UnderscoreNamingStrategy;
 use Doctrine\ORM\Proxy\ProxyFactory;
 use Doctrine\Persistence\Mapping\Driver\MappingDriver;
+use Doctrine\Persistence\ObjectRepository;
 use Prophecy\Argument;
 use Prophecy\PhpUnit\ProphecyTrait;
 use Prophecy\Prophecy\ObjectProphecy;
+use Prophecy\Prophecy\ProphecyInterface;
+use ReflectionClass;
+use ReflectionException;
 use Refugis\DoctrineExtra\ORM\EntityRepository;
+use RuntimeException;
+use Solido\TestUtils\Doctrine\ORM\Driver as DoctrineDriver;
 use Solido\TestUtils\Prophecy\Argument\Token\StringMatchesToken;
 
 use function array_values;
+use function assert;
 use function class_exists;
+use function count;
+use function dirname;
 use function interface_exists;
 use function method_exists;
 use function preg_quote;
+use function Safe\sprintf;
 use function sys_get_temp_dir;
 
 use const CASE_LOWER;
+use const PHP_VERSION_ID;
 
 trait EntityManagerTrait
 {
@@ -90,7 +104,10 @@ trait EntityManagerTrait
             $this->_entityManager = EntityManager::create($this->_connection, $this->_configuration);
             $this->onEntityManagerCreated();
 
-            $this->queryLike('SELECT DATABASE()', [], [
+            $platform = $this->_connection->getDatabasePlatform();
+            assert($platform !== null);
+
+            $this->queryLike('SELECT ' . $platform->getCurrentDatabaseExpression(), [], [
                 ['database'],
             ]);
         }
@@ -109,6 +126,74 @@ trait EntityManagerTrait
     }
 
     /**
+     * @param string[]|null $paths
+     */
+    private function loadEntityMetadata(string $className, ?string $driver = null, ?array $paths = null): void
+    {
+        try {
+            $reflectionClass = new ReflectionClass($className);
+        } catch (ReflectionException $e) {
+            throw new RuntimeException(sprintf('Cannot load entity metadata for class "%s": %s', $className, $e->getMessage()));
+        }
+
+        if ($paths === null) {
+            $paths = [];
+            $fileName = $reflectionClass->getFileName();
+            if ($fileName !== false) {
+                $paths[] = dirname($fileName);
+            }
+        }
+
+        $mappingDriver = $driver === null
+            ? $this->guessMetadataDriver($reflectionClass, $paths)
+            : DoctrineDriver::createDriver($driver, $paths);
+
+        $entityManager = $this->getEntityManager();
+        $configuration = $entityManager->getConfiguration();
+
+        $metadata = new ClassMetadata($className, $configuration->getNamingStrategy());
+        $mappingDriver->loadMetadataForClass($className, $metadata);
+
+        $entityManager->getMetadataFactory()->setMetadataFor($className, $metadata);
+    }
+
+    /**
+     * @param string[] $paths
+     */
+    private function guessMetadataDriver(ReflectionClass $reflectionClass, array $paths): MappingDriver
+    {
+        if (PHP_VERSION_ID >= 80000) {
+            $attributes = $reflectionClass->getAttributes(Entity::class);
+
+            if (count($attributes) > 0) {
+                return DoctrineDriver::createDriver(DoctrineDriver::ATTRIBUTE, $paths);
+            }
+        }
+
+        $reader = new AnnotationReader();
+        $annot = $reader->getClassAnnotation($reflectionClass, Entity::class);
+        if ($annot !== null) {
+            return DoctrineDriver::createDriver(DoctrineDriver::ANNOTATION, $paths);
+        }
+
+        throw new RuntimeException(sprintf('Cannot guess metadata driver for class "%s"', $reflectionClass->name));
+    }
+
+    /**
+     * @param ProphecyInterface|ObjectRepository $repository
+     */
+    private function setRepository(string $entityName, object $repository): void
+    {
+        $em = $this->getEntityManager();
+        $configuration = $em->getConfiguration();
+        $repositoryFactory = $configuration->getRepositoryFactory();
+
+        assert($repositoryFactory instanceof TestRepositoryFactory);
+
+        $repositoryFactory->setRepository($em, $entityName, $repository);
+    }
+
+    /**
      * @param array<string|int, mixed> $parameters
      * @param array<array<string, string>> $results
      */
@@ -119,10 +204,19 @@ trait EntityManagerTrait
 
     /**
      * @param array<string|int, mixed> $parameters
+     */
+    private function executeLike(string $query, array $parameters = [], int $rowCount = 1): void
+    {
+        $this->executeMatches('/' . preg_quote($query, '/') . '/', $parameters, $rowCount);
+    }
+
+    /**
+     * @param array<string|int, mixed> $parameters
      * @param array<array<string, string>> $results
      */
     private function queryMatches(string $query, array $parameters = [], array $results = []): void
     {
+        /* @infection-ignore-all */
         if (method_exists(Statement::class, 'setFetchMode')) {
             $this->_innerConnection->{$parameters ? 'prepare' : 'query'}(new StringMatchesToken($query))
                 ->willReturn($stmt = $this->prophesize(Statement::class));
@@ -153,8 +247,9 @@ trait EntityManagerTrait
             $this->_innerConnection->prepare(new StringMatchesToken($query))
                 ->willReturn($stmt = $this->prophesize(Statement::class));
 
+            /* @infection-ignore-all */
             foreach (array_values($parameters) as $key => $value) {
-                $stmt->bindValue($key + 1, $value, Argument::any())->willReturn();
+                $stmt->bindValue($key + 1, $value, Argument::cetera())->willReturn();
             }
 
             $stmt->execute()->willReturn(new DummyResult($results));
@@ -164,20 +259,22 @@ trait EntityManagerTrait
     /**
      * @param array<string|int, mixed> $parameters
      */
-    private function executeLike(string $query, array $parameters = [], int $rowCount = 0): void
+    private function executeMatches(string $query, array $parameters = [], int $rowCount = 1): void
     {
-        $this->_innerConnection->prepare(Argument::containingString($query))
+        $this->_innerConnection->prepare(new StringMatchesToken($query))
             ->willReturn($stmt = $this->prophesize(Statement::class));
 
+        /* @infection-ignore-all */
         foreach (array_values($parameters) as $key => $value) {
             $stmt->bindValue($key + 1, $value, Argument::any())->willReturn();
         }
 
+        /* @infection-ignore-all */
         if (method_exists(Statement::class, 'setFetchMode')) {
             $stmt->execute()->willReturn();
             $stmt->rowCount()->willReturn($rowCount);
         } else {
-            $stmt->execute()->willReturn(new DummyResult([]));
+            $stmt->execute()->willReturn(new DummyResult([], $rowCount));
         }
     }
 }

@@ -69,7 +69,6 @@ abstract class AbstractJsonResponseContent extends ResponseConstraint
         $accessor = self::getPropertyAccessor();
         $content = $adapter->getContent();
         if ($content !== '') {
-            /** @phpstan-ignore-next-line */
             try {
                 $value = json_decode($content, false, 512, JSON_THROW_ON_ERROR);
 

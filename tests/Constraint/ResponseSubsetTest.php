@@ -54,6 +54,42 @@ class ResponseSubsetTest extends TestCase
             'message' => ''
         ];
 
+        yield 'complex array subset and json response, matching recursive' => [
+            'expected' => true,
+            'subset' => ['foo' => '', 'bar' => ['foobar' => '0', 'barbar' => '1']],
+            'response' => new JsonResponse(['foo' => '', 'baz' => 2, 'bar' => ['foobar' => '0', 'barbar' => '1']]),
+            'message' => ''
+        ];
+
+        yield 'complex array subset and json response, matching recursive equals' => [
+            'expected' => true,
+            'subset' => ['foo' => '', 'baz' => 2, 'bar' => ['foobar' => '0', 'barbar' => '1']],
+            'response' => new JsonResponse(['foo' => '', 'baz' => 2, 'bar' => ['foobar' => '0', 'barbar' => '1']]),
+            'message' => ''
+        ];
+
+        yield 'complex array subset and json response, not matching recursive equals' => [
+            'expected' => false,
+            'subset' => ['foo' => '', 'baz' => 2, 'bar' => ['foobar' => '0', 'barbar' => '1']],
+            'response' => new JsonResponse(['foo' => '', 'bar' => ['foobar' => '0', 'barbar' => '1']]),
+            'message' => <<<'ERR'
+            Failed asserting that Symfony\Component\HttpFoundation\JsonResponse Object (...) contains subset Array &0 (
+                'foo' => ''
+                'baz' => 2
+                'bar' => Array &1 (
+                    'foobar' => '0'
+                    'barbar' => '1'
+                )
+            ). Actual response content is: Array &0 (
+                'foo' => ''
+                'bar' => Array &1 (
+                    'foobar' => '0'
+                    'barbar' => '1'
+                )
+            ).
+            ERR,
+        ];
+
         yield 'string subset and string response, not matching' => [
             'expected' => false,
             'subset' => 'great jupiter!',

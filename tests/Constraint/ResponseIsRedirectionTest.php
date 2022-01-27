@@ -32,7 +32,12 @@ class ResponseIsRedirectionTest extends TestCase
         yield [false, null, 'Failed asserting that null is a response object.'];
         yield [false, new Response('', 500), 'Failed asserting that Symfony\Component\HttpFoundation\Response Object (...) is redirection.'];
         yield [false, new Response('', 200), 'Failed asserting that Symfony\Component\HttpFoundation\Response Object (...) is redirection.'];
+        yield [true, new Response('', 300)];
         yield [true, new Response('', 301)];
+        yield [true, new Response('', 302)];
+        yield [true, new Response('', 303)];
+        yield [true, new Response('', 307)];
+        yield [true, new Response('', 308)];
     }
 
     public function testToString(): void
