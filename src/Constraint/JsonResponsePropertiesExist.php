@@ -9,6 +9,8 @@ use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
 use function array_map;
 use function count;
 use function implode;
+use function is_array;
+use function is_object;
 use function Safe\sprintf;
 
 class JsonResponsePropertiesExist extends AbstractJsonResponseContent
@@ -33,6 +35,12 @@ class JsonResponsePropertiesExist extends AbstractJsonResponseContent
      */
     protected function doMatch($data, PropertyAccessorInterface $accessor): bool
     {
+        if (! is_array($data) && ! is_object($data)) {
+            $this->missing = $this->propertyPaths;
+
+            return false;
+        }
+
         $this->missing = [];
         foreach ($this->propertyPaths as $propertyPath) {
             if ($accessor->isReadable($data, $propertyPath)) {

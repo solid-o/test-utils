@@ -10,6 +10,7 @@ use PHPUnit\Framework\Constraint\Constraint;
 use function array_map;
 use function count;
 use function implode;
+use function is_array;
 use function is_string;
 use function Safe\sprintf;
 
@@ -35,6 +36,10 @@ class SecurityPolicyChecked extends Constraint
      */
     protected function matches($other): bool
     {
+        if (! is_array($other)) {
+            return false;
+        }
+
         $checkedPolicies = $this->checkedPolicies;
         foreach ($checkedPolicies as $value) {
             foreach ($other as $key => $policy) {

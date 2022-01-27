@@ -7,17 +7,18 @@ namespace Solido\TestUtils\Constraint;
 use PHPUnit\Framework\Constraint\StringContains;
 use PHPUnit\Framework\ExpectationFailedException;
 use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
+use TypeError;
 
 use function get_debug_type;
+use function is_object;
 use function is_string;
+use function method_exists;
 use function Safe\sprintf;
 
 class JsonResponsePropertyContainsString extends AbstractJsonResponseContent
 {
     private string $propertyPath;
-
-    /** @var mixed */
-    private $expected;
+    private string $expected;
 
     /**
      * @param mixed $expected
@@ -25,6 +26,15 @@ class JsonResponsePropertyContainsString extends AbstractJsonResponseContent
     public function __construct(string $propertyPath, $expected)
     {
         $this->propertyPath = $propertyPath;
+
+        if (is_object($expected) && method_exists($expected, '__toString')) {
+            $expected = (string) $expected;
+        }
+
+        if (! is_string($expected)) {
+            throw new TypeError(sprintf('Expected a string or a stringable object, %s passed', get_debug_type($expected)));
+        }
+
         $this->expected = $expected;
     }
 

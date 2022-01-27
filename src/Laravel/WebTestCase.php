@@ -8,6 +8,7 @@ use Illuminate\Contracts\Console\Kernel as ConsoleKernelContract;
 use Illuminate\Contracts\Debug\ExceptionHandler;
 use Illuminate\Contracts\Http\Kernel as HttpKernelContract;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Events\Dispatcher;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use Illuminate\Foundation\Exceptions\Handler;
@@ -83,11 +84,9 @@ class WebTestCase extends TestCase
     }
 
     /**
-     * @param string | mixed $name
-     *
      * @return mixed
      */
-    public function __get($name)
+    public function __get(string $name)
     {
         if ($name === 'app') {
             static::bootKernel();
@@ -116,7 +115,11 @@ class WebTestCase extends TestCase
             };
             $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2);
             $scopeObject = $backtrace[1]['object'] ?? new stdClass();
-            $accessor = $accessor->bindTo($scopeObject, get_class($scopeObject));
+            $scopeClass = get_class($scopeObject);
+
+            assert($scopeClass !== false);
+            $accessor = $accessor->bindTo($scopeObject, $scopeClass);
+
             $returnValue = &$accessor();
         }
 
@@ -196,7 +199,9 @@ class WebTestCase extends TestCase
             $callback();
         }
 
-        Model::setEventDispatcher(static::$kernel->get('events'));
+        $dispatcher = static::$kernel->get('events');
+        assert($dispatcher instanceof Dispatcher);
+        Model::setEventDispatcher($dispatcher);
 
         static::$booted = true;
 
@@ -321,7 +326,7 @@ class WebTestCase extends TestCase
         }
     }
 
-    private static function getResponse(): Response
+    protected static function getResponse(): Response
     {
         $response = self::getClient()->getResponse();
         if ($response === null) { /* @phpstan-ignore-line */
@@ -333,7 +338,7 @@ class WebTestCase extends TestCase
         return $response;
     }
 
-    private static function getRequest(): Request
+    protected static function getRequest(): Request
     {
         $request = self::getClient()->getRequest();
         if ($request === null) { /* @phpstan-ignore-line */

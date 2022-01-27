@@ -376,7 +376,7 @@ trait FunctionalTestTrait
         return static::$client;
     }
 
-    private static function getResponse(): Response
+    protected static function getResponse(): Response
     {
         $response = static::getClient()->getResponse();
         if ($response === null) {

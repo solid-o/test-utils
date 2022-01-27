@@ -12,14 +12,9 @@ use function Safe\sprintf;
 class JsonResponsePropertyCount extends AbstractJsonResponseContent
 {
     private string $propertyPath;
+    private int $expected;
 
-    /** @var mixed */
-    private $expected;
-
-    /**
-     * @param mixed $expected
-     */
-    public function __construct(string $propertyPath, $expected)
+    public function __construct(string $propertyPath, int $expected)
     {
         $this->propertyPath = $propertyPath;
         $this->expected = $expected;

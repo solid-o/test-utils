@@ -15,14 +15,14 @@ use function reset;
  */
 final class DummyResult implements Result
 {
-    /** @var mixed[] */
+    /** @var array<array-key, mixed>[] */
     private array $data;
     private int $rowCount;
     private int $columnCount = 0;
     private int $num = 0;
 
     /**
-     * @param mixed[] $data
+     * @param array<array-key, mixed>[] $data
      */
     public function __construct(array $data, ?int $rowCount = null)
     {
@@ -41,7 +41,6 @@ final class DummyResult implements Result
     public function fetchNumeric()
     {
         $row = $this->fetch();
-
         if ($row === false) {
             return false;
         }
@@ -126,7 +125,7 @@ final class DummyResult implements Result
     }
 
     /**
-     * @return false|mixed
+     * @return false|array<array-key, mixed>
      */
     private function fetch()
     {

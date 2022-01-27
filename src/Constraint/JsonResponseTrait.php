@@ -11,12 +11,15 @@ use Symfony\Component\PropertyAccess\PropertyAccess;
 use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
 use Symfony\Component\PropertyAccess\PropertyPath;
 use Symfony\Component\PropertyAccess\PropertyPathIterator;
+use TypeError;
 
 use function array_keys;
 use function array_map;
+use function get_debug_type;
 use function get_object_vars;
 use function implode;
 use function is_array;
+use function is_object;
 use function Safe\sprintf;
 
 /**
@@ -59,6 +62,10 @@ trait JsonResponseTrait
             return $data;
         }
 
+        if (! is_array($data) && ! is_object($data)) {
+            throw new TypeError(sprintf('Error reading property: expected an array or an object, %s given', get_debug_type($data)));
+        }
+
         try {
             return $accessor->getValue($data, $propertyPath);
         } catch (AccessException | UnexpectedTypeException $e) {
@@ -72,14 +79,21 @@ trait JsonResponseTrait
 
                 foreach ($pathIterator as $segment) {
                     $segment = $pathIterator->isIndex() ? '[' . $segment . ']' : $segment;
+                    /* @phpstan-ignore-next-line */
                     if (! $accessor->isReadable($zval, $segment)) {
-                        $path[] = $segment . ' [ERROR. Available keys: ' . implode(
-                            ', ',
-                            array_map('json_encode', array_keys(is_array($zval) ? $zval : get_object_vars($zval)))
-                        ) . ']';
+                        if (! is_array($zval) && ! is_object($zval)) {
+                            $path[] = $segment . ' [ERROR. Not traversable (' . get_debug_type($zval) . ') value]';
+                        } else {
+                            $path[] = $segment . ' [ERROR. Available keys: ' . implode(
+                                ', ',
+                                array_map('json_encode', array_keys(is_array($zval) ? $zval : get_object_vars($zval)))
+                            ) . ']';
+                        }
+
                         break;
                     }
 
+                    assert(is_array($zval) || is_object($zval));
                     $zval = $accessor->getValue($zval, $segment);
                     $path[] = $segment;
                 }

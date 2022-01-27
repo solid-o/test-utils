@@ -13,14 +13,9 @@ use function Safe\sprintf;
 class JsonResponsePropertyIsType extends AbstractJsonResponseContent
 {
     private string $propertyPath;
+    private string $expected;
 
-    /** @var mixed */
-    private $expected;
-
-    /**
-     * @param mixed $expected
-     */
-    public function __construct(string $propertyPath, $expected)
+    public function __construct(string $propertyPath, string $expected)
     {
         $this->propertyPath = $propertyPath;
         $this->expected = $expected;

@@ -58,8 +58,11 @@ final class TestRepositoryFactory implements RepositoryFactory
         assert($metadata instanceof ClassMetadata);
 
         $repositoryClassName = $metadata->customRepositoryClassName ?: $entityManager->getConfiguration()->getDefaultRepositoryClassName();
+        $repository = new $repositoryClassName($entityManager, $metadata);
 
-        return new $repositoryClassName($entityManager, $metadata);
+        assert($repository instanceof ObjectRepository);
+
+        return $repository;
     }
 
     private function getRepositoryHash(EntityManagerInterface $entityManager, string $entityName): string

@@ -16,7 +16,7 @@ abstract class Request
 
     /** @var array<string, string[]> */
     protected array $headers;
-    /** @var mixed */
+    /** @var array<string, mixed>|string|null */
     protected $content;
     /** @var array<string, UploadedFileInterface> */
     protected array $files;
@@ -62,7 +62,7 @@ abstract class Request
     }
 
     /**
-     * @param mixed $content
+     * @param array<string, mixed>|string|null $content
      */
     public function withContent($content): self
     {

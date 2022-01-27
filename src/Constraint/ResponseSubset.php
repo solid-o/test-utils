@@ -49,8 +49,11 @@ final class ResponseSubset extends ResponseConstraint
         }
 
         $other = json_decode($adapter->getContent(), true, 512, JSON_THROW_ON_ERROR);
-        $this->subset = $this->toArray($this->subset);
+        if (! is_array($other)) {
+            return false;
+        }
 
+        $this->subset = $this->toArray($this->subset);
         $patched = array_replace_recursive($other, $this->subset);
 
         return $other === $patched;

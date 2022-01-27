@@ -41,6 +41,9 @@ final class ResponseLength extends ResponseConstraint
         }
 
         $other = json_decode($adapter->getContent(), true, 512, JSON_THROW_ON_ERROR);
+        if (! is_array($other)) {
+            return false;
+        }
 
         return array_is_list($other) && count($other) === $this->length;
     }
