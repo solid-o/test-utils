@@ -8,6 +8,7 @@ use Solido\Common\Exception\UnsupportedResponseObjectException;
 
 use function array_is_list;
 use function count;
+use function is_array;
 use function json_decode;
 use function mb_strlen;
 use function Safe\sprintf;

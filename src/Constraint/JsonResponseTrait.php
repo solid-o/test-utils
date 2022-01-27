@@ -15,6 +15,7 @@ use TypeError;
 
 use function array_keys;
 use function array_map;
+use function assert;
 use function get_debug_type;
 use function get_object_vars;
 use function implode;

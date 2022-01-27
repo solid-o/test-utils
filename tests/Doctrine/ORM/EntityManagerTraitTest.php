@@ -149,7 +149,7 @@ class EntityManagerTraitTest extends TestCase
     public function testShouldThrowOnLoadEntityMetadataForNonExistentClass(): void
     {
         $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('Cannot load entity metadata for class "Solido\TestUtils\Tests\Doctrine\ORM\NonExistent": Class "Solido\TestUtils\Tests\Doctrine\ORM\NonExistent" does not exist');
+        $this->expectExceptionMessage('Cannot load entity metadata for class "Solido\TestUtils\Tests\Doctrine\ORM\NonExistent": ');
 
         $this->obj->loadEntityMetadata(NonExistent::class);
     }
