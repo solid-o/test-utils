@@ -83,7 +83,10 @@ trait EntityManagerTrait
             $this->_configuration->setRepositoryFactory(new TestRepositoryFactory());
             $this->_configuration->setNamingStrategy(new UnderscoreNamingStrategy(CASE_LOWER, true));
 
-            $this->_innerConnection = $this->prophesize(interface_exists(ServerInfoAwareConnection::class) ? ServerInfoAwareConnection::class : PDOConnection::class);
+            $this->_innerConnection = $this->prophesize(interface_exists(DriverConnection::class) ? DriverConnection::class : PDOConnection::class);
+            if (interface_exists(ServerInfoAwareConnection::class)) {
+                $this->_innerConnection->willImplement(ServerInfoAwareConnection::class);
+            }
 
             if (interface_exists(ServerInfoAwareConnection::class)) {
                 $this->_connection = new Connection([
