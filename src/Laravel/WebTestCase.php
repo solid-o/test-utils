@@ -100,8 +100,8 @@ class WebTestCase extends TestCase
                         'Undefined property: %s::$%s in %s on line %s',
                         $reflector->getName(),
                         $name,
-                        $backtrace[0]['file'],
-                        $backtrace[0]['line']
+                        $backtrace[0]['file'] ?? '<unknown>',
+                        $backtrace[0]['line'] ?? '<unknown>'
                     ),
                     E_USER_NOTICE
                 );
