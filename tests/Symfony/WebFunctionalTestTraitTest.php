@@ -13,7 +13,7 @@ class WebFunctionalTestTraitTest extends WebTestCase implements HttpTestCaseInte
 {
     use FunctionalTestTrait;
 
-    protected static function getKernelClass()
+    protected static function getKernelClass(): string
     {
         return TestKernel::class;
     }

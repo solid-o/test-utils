@@ -15,6 +15,7 @@ use Solido\TestUtils\HttpTestCaseInterface;
 use Solido\TestUtils\Symfony\FunctionalTestTrait;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\BrowserKit\Request as BrowserKitRequest;
+use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -178,6 +179,7 @@ class FunctionalTestTraitTest extends TestCase
 
     public function testShouldIgnoredStreamedOutput(): void
     {
+        $crawler = $this->prophesize(Crawler::class);
         $client = $this->prophesize(KernelBrowser::class);
         ConcreteFunctionalTestTrait::setClient($client->reveal());
 
@@ -186,9 +188,11 @@ class FunctionalTestTraitTest extends TestCase
         });
 
         $client->request('GET', '/', Argument::cetera())
-            ->will(function () use ($response): void { // phpcs:ignore
+            ->will(function () use ($crawler, $response): Crawler { // phpcs:ignore
                 $response->prepare(new Request());
                 $response->send();
+
+                return $crawler->reveal();
             })
             ->shouldBeCalled();
 
