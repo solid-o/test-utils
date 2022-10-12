@@ -234,8 +234,13 @@ trait EntityManagerTrait
             $this->_innerConnection->{$parameters ? 'prepare' : 'query'}(new StringMatchesToken($query))
                 ->willReturn($stmt = $this->prophesize(Statement::class));
 
-            foreach (array_values($parameters) as $key => $value) {
-                $stmt->bindValue($key + 1, $value, Argument::any())->willReturn();
+            /* @infection-ignore-all */
+            if (empty($parameters)) {
+                $stmt->bindValue(Argument::cetera())->willReturn();
+            } else {
+                foreach (array_values($parameters) as $key => $value) {
+                    $stmt->bindValue($key + 1, $value, Argument::any())->willReturn();
+                }
             }
 
             $stmt->execute()->willReturn();
@@ -261,8 +266,12 @@ trait EntityManagerTrait
                 ->willReturn($stmt = $this->prophesize(Statement::class));
 
             /* @infection-ignore-all */
-            foreach (array_values($parameters) as $key => $value) {
-                $stmt->bindValue($key + 1, $value, Argument::cetera())->willReturn();
+            if (empty($parameters)) {
+                $stmt->bindValue(Argument::cetera())->willReturn();
+            } else {
+                foreach (array_values($parameters) as $key => $value) {
+                    $stmt->bindValue($key + 1, $value, Argument::any())->willReturn();
+                }
             }
 
             $stmt->execute()->willReturn(new DummyResult($results));
@@ -278,8 +287,12 @@ trait EntityManagerTrait
             ->willReturn($stmt = $this->prophesize(Statement::class));
 
         /* @infection-ignore-all */
-        foreach (array_values($parameters) as $key => $value) {
-            $stmt->bindValue($key + 1, $value, Argument::any())->willReturn();
+        if (empty($parameters)) {
+            $stmt->bindValue(Argument::cetera())->willReturn();
+        } else {
+            foreach (array_values($parameters) as $key => $value) {
+                $stmt->bindValue($key + 1, $value, Argument::any())->willReturn();
+            }
         }
 
         /* @infection-ignore-all */
