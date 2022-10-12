@@ -26,6 +26,7 @@ class WebFunctionalTestTraitTest extends WebTestCase implements HttpTestCaseInte
 
         self::ensureKernelShutdown();
         self::assertFalse($kernel->isBooted());
+        self::assertEquals(1, TestKernel::$bootCount);
         self::assertEquals(1, TestKernel::$shutdownCount);
 
         self::get('/');

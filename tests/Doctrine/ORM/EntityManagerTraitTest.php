@@ -15,8 +15,8 @@ use RuntimeException;
 use Solido\TestUtils\Doctrine\ORM\EntityManagerTrait;
 use Solido\TestUtils\Doctrine\ORM\FakeMetadataFactory;
 use Solido\TestUtils\Doctrine\ORM\MockPlatform;
+use Solido\TestUtils\Tests\fixtures\Doctrine\ORM;
 
-use Solido\TestUtils\Tests\fixtures\Doctrine\ORM\TestEntity;
 use function spl_object_hash;
 
 class EntityManagerTraitTest extends TestCase
@@ -138,12 +138,31 @@ class EntityManagerTraitTest extends TestCase
 
     public function testLoadEntityMetadata(): void
     {
-        $this->obj->loadEntityMetadata(TestEntity::class);
+        $this->obj->loadEntityMetadata(ORM\TestEntity::class);
+        $this->obj->loadEntityMetadata(ORM\TestMappedSuperclass::class);
+        $this->obj->loadEntityMetadata(ORM\TestEmbeddable::class);
 
         $em = $this->obj->getEntityManager();
-        $metadata = $em->getClassMetadata(TestEntity::class);
 
-        self::assertInstanceOf(ClassMetadata::class, $metadata);
+        self::assertInstanceOf(ClassMetadata::class, $em->getClassMetadata(ORM\TestEntity::class));
+        self::assertInstanceOf(ClassMetadata::class, $em->getClassMetadata(ORM\TestMappedSuperclass::class));
+        self::assertInstanceOf(ClassMetadata::class, $em->getClassMetadata(ORM\TestEmbeddable::class));
+    }
+
+    /**
+     * @requires PHP >= 8.0
+     */
+    public function testLoadEntityMetadataWithAttributes(): void
+    {
+        $this->obj->loadEntityMetadata(ORM\Php80\TestEntity::class);
+        $this->obj->loadEntityMetadata(ORM\Php80\TestMappedSuperclass::class);
+        $this->obj->loadEntityMetadata(ORM\Php80\TestEmbeddable::class);
+
+        $em = $this->obj->getEntityManager();
+
+        self::assertInstanceOf(ClassMetadata::class, $em->getClassMetadata(ORM\Php80\TestEntity::class));
+        self::assertInstanceOf(ClassMetadata::class, $em->getClassMetadata(ORM\Php80\TestMappedSuperclass::class));
+        self::assertInstanceOf(ClassMetadata::class, $em->getClassMetadata(ORM\Php80\TestEmbeddable::class));
     }
 
     public function testShouldThrowOnLoadEntityMetadataForNonExistentClass(): void
@@ -162,12 +181,12 @@ class EntityManagerTraitTest extends TestCase
         $this->obj->loadEntityMetadata(self::class);
     }
 
-    public function testLoadEntityMetadataNamingStratefy(): void
+    public function testLoadEntityMetadataNamingStrategy(): void
     {
-        $this->obj->loadEntityMetadata(TestEntity::class);
+        $this->obj->loadEntityMetadata(ORM\TestEntity::class);
 
         $em = $this->obj->getEntityManager();
-        $metadata = $em->getClassMetadata(TestEntity::class);
+        $metadata = $em->getClassMetadata(ORM\TestEntity::class);
 
         $mapping = $metadata->getFieldMapping('field42Name');
         self::assertEquals('field42_name', $mapping['columnName']);
@@ -175,31 +194,31 @@ class EntityManagerTraitTest extends TestCase
 
     public function testGetRepository(): void
     {
-        $this->obj->loadEntityMetadata(TestEntity::class);
+        $this->obj->loadEntityMetadata(ORM\TestEntity::class);
 
         $em = $this->obj->getEntityManager();
-        $repository = $em->getRepository(TestEntity::class);
+        $repository = $em->getRepository(ORM\TestEntity::class);
 
         self::assertInstanceOf(EntityRepository::class, $repository);
     }
 
     public function testSetRepository(): void
     {
-        $this->obj->loadEntityMetadata(TestEntity::class);
-        $this->obj->setRepository(TestEntity::class, $repo = $this->prophesize(EntityRepository::class));
+        $this->obj->loadEntityMetadata(ORM\TestEntity::class);
+        $this->obj->setRepository(ORM\TestEntity::class, $repo = $this->prophesize(EntityRepository::class));
 
-        $repo->get('12')->willReturn(new TestEntity());
+        $repo->get('12')->willReturn(new ORM\TestEntity());
 
         $em = $this->obj->getEntityManager();
-        $repository = $em->getRepository(TestEntity::class);
+        $repository = $em->getRepository(ORM\TestEntity::class);
 
         self::assertInstanceOf(EntityRepository::class, $repository);
-        self::assertInstanceOf(TestEntity::class, $repository->get('12'));
+        self::assertInstanceOf(ORM\TestEntity::class, $repository->get('12'));
     }
 
     public function testGetCurrentDatabase(): void
     {
-        $this->obj->loadEntityMetadata(TestEntity::class);
+        $this->obj->loadEntityMetadata(ORM\TestEntity::class);
 
         $em = $this->obj->getEntityManager();
         $connection = $em->getConnection();

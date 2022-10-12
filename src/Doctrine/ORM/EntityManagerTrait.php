@@ -22,7 +22,9 @@ use Doctrine\ORM\Configuration;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping\ClassMetadata;
+use Doctrine\ORM\Mapping\Embeddable;
 use Doctrine\ORM\Mapping\Entity;
+use Doctrine\ORM\Mapping\MappedSuperclass;
 use Doctrine\ORM\Mapping\UnderscoreNamingStrategy;
 use Doctrine\ORM\Proxy\ProxyFactory;
 use Doctrine\Persistence\Mapping\Driver\MappingDriver;
@@ -38,6 +40,7 @@ use RuntimeException;
 use Solido\TestUtils\Doctrine\ORM\Driver as DoctrineDriver;
 use Solido\TestUtils\Prophecy\Argument\Token\StringMatchesToken;
 
+use function array_merge;
 use function array_values;
 use function assert;
 use function class_exists;
@@ -155,6 +158,7 @@ trait EntityManagerTrait
         $configuration = $entityManager->getConfiguration();
 
         $metadata = new ClassMetadata($className, $configuration->getNamingStrategy());
+        $metadata->reflClass = $reflectionClass;
         $mappingDriver->loadMetadataForClass($className, $metadata);
 
         $entityManager->getMetadataFactory()->setMetadataFor($className, $metadata);
@@ -166,7 +170,11 @@ trait EntityManagerTrait
     private function guessMetadataDriver(ReflectionClass $reflectionClass, array $paths): MappingDriver
     {
         if (PHP_VERSION_ID >= 80000) {
-            $attributes = $reflectionClass->getAttributes(Entity::class);
+            $attributes = array_merge(
+                $reflectionClass->getAttributes(Entity::class),
+                $reflectionClass->getAttributes(MappedSuperclass::class),
+                $reflectionClass->getAttributes(Embeddable::class)
+            );
 
             if (count($attributes) > 0) {
                 return DoctrineDriver::createDriver(DoctrineDriver::ATTRIBUTE, $paths);
@@ -174,7 +182,9 @@ trait EntityManagerTrait
         }
 
         $reader = new AnnotationReader();
-        $annot = $reader->getClassAnnotation($reflectionClass, Entity::class);
+        $annot = $reader->getClassAnnotation($reflectionClass, Entity::class) ??
+            $reader->getClassAnnotation($reflectionClass, MappedSuperclass::class) ??
+            $reader->getClassAnnotation($reflectionClass, Embeddable::class);
         if ($annot !== null) {
             return DoctrineDriver::createDriver(DoctrineDriver::ANNOTATION, $paths);
         }
