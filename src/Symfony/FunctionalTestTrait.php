@@ -74,7 +74,7 @@ trait FunctionalTestTrait
             return;
         }
 
-        $container = static::$kernel->isBooted() ? static::$kernel->getContainer() : null;
+        $container = static::$booted ? static::$kernel->getContainer() : null;
         static::$kernel->shutdown();
         static::$booted = false;
 
