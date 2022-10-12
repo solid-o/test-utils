@@ -25,6 +25,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\VarDumper\Cloner\Data;
+use Symfony\Contracts\Service\ResetInterface;
 
 use function assert;
 use function gc_collect_cycles;
@@ -67,7 +68,22 @@ trait FunctionalTestTrait
     /**
      * Shuts the kernel down if it was used in the test.
      */
-    abstract protected static function ensureKernelShutdown(); // phpcs:ignore
+    protected static function ensureKernelShutdown(): void
+    {
+        if (static::$kernel === null) {
+            return;
+        }
+
+        $container = static::$kernel->isBooted() ? static::$kernel->getContainer() : null;
+        static::$kernel->shutdown();
+        static::$booted = false;
+
+        if (! ($container instanceof ResetInterface)) {
+            return;
+        }
+
+        $container->reset();
+    }
 
     /**
      * Adds a policy for the current test.
