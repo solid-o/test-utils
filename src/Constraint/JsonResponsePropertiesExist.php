@@ -11,29 +11,20 @@ use function count;
 use function implode;
 use function is_array;
 use function is_object;
-use function Safe\sprintf;
+use function sprintf;
 
 class JsonResponsePropertiesExist extends AbstractJsonResponseContent
 {
     /** @var string[] */
-    private array $propertyPaths;
-
-    /** @var string[] */
     private array $missing;
 
-    /**
-     * @param string[] $propertyPaths
-     */
-    public function __construct(array $propertyPaths)
+    /** @param string[] $propertyPaths */
+    public function __construct(private readonly array $propertyPaths)
     {
-        $this->propertyPaths = $propertyPaths;
         $this->missing = [];
     }
 
-    /**
-     * @inheritDoc
-     */
-    protected function doMatch($data, PropertyAccessorInterface $accessor): bool
+    protected function doMatch(mixed $data, PropertyAccessorInterface $accessor): bool
     {
         if (! is_array($data) && ! is_object($data)) {
             $this->missing = $this->propertyPaths;
@@ -53,16 +44,13 @@ class JsonResponsePropertiesExist extends AbstractJsonResponseContent
         return count($this->missing) === 0;
     }
 
-    /**
-     * @inheritDoc
-     */
-    protected function getFailureDescription($other, PropertyAccessorInterface $accessor): string
+    protected function getFailureDescription(mixed $other, PropertyAccessorInterface $accessor): string
     {
         return sprintf(
             'propert%s %s exist%s',
             count($this->missing) === 1 ? 'y' : 'ies',
             implode(', ', array_map('json_encode', $this->missing)),
-            count($this->missing) === 1 ? 's' : ''
+            count($this->missing) === 1 ? 's' : '',
         );
     }
 
@@ -72,7 +60,7 @@ class JsonResponsePropertiesExist extends AbstractJsonResponseContent
             'propert%s %s exist%s',
             count($this->propertyPaths) === 1 ? 'y' : 'ies',
             implode(', ', array_map('json_encode', $this->propertyPaths)),
-            count($this->propertyPaths) === 1 ? 's' : ''
+            count($this->propertyPaths) === 1 ? 's' : '',
         );
     }
 }

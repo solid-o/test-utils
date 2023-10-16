@@ -37,16 +37,16 @@ class Response
     private bool $checked = false;
     private object $response;
 
-    private ?int $statusCode;
-    private ?int $statusCodeClass;
+    private int|null $statusCode;
+    private int|null $statusCodeClass;
 
     /** @var array<string, string|null> */
     private array $headers;
-    private ?string $type;
+    private string|null $type;
 
     /** @var string|array<(string|int), mixed>|null */
-    private $minimumSubset;
-    private ?int $length;
+    private string|array|null $minimumSubset = null;
+    private int|null $length;
 
     public function __construct(callable $performer)
     {
@@ -112,7 +112,7 @@ class Response
         return $this;
     }
 
-    public function shouldHaveHeader(string $name, ?string $value = null): self
+    public function shouldHaveHeader(string $name, string|null $value = null): self
     {
         $this->headers[$name] = $value;
 
@@ -126,10 +126,8 @@ class Response
         return $this;
     }
 
-    /**
-     * @param string | array<string|int, mixed> $content
-     */
-    public function shouldContainAtLeast($content): self
+    /** @param string | array<string|int, mixed> $content */
+    public function shouldContainAtLeast(string|array $content): self
     {
         $this->minimumSubset = $content;
 
@@ -150,10 +148,7 @@ class Response
         return $this->response;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getProperty(string $propertyPath)
+    public function getProperty(string $propertyPath): mixed
     {
         $this->shouldBeJson();
 

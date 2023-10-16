@@ -12,7 +12,6 @@ use Prophecy\Prophecy\ProphecyInterface;
 use TypeError;
 
 use function assert;
-use function get_class;
 use function spl_object_hash;
 
 final class TestRepositoryFactory implements RepositoryFactory
@@ -34,9 +33,7 @@ final class TestRepositoryFactory implements RepositoryFactory
         return $this->repositoryList[$repositoryHash] = $this->createRepository($entityManager, $entityName);
     }
 
-    /**
-     * @param ProphecyInterface|ObjectRepository $repository
-     */
+    /** @param ProphecyInterface|ObjectRepository $repository */
     public function setRepository(EntityManagerInterface $entityManager, string $entityName, object $repository): void
     {
         if ($repository instanceof ProphecyInterface) {
@@ -44,7 +41,7 @@ final class TestRepositoryFactory implements RepositoryFactory
         }
 
         if (! $repository instanceof ObjectRepository) {
-            throw new TypeError('Argument 3 passed to ' . __METHOD__ . ' must implement interface ' . ObjectRepository::class . ', instance of ' . get_class($repository) . ' given.');
+            throw new TypeError('Argument 3 passed to ' . __METHOD__ . ' must implement interface ' . ObjectRepository::class . ', instance of ' . $repository::class . ' given.');
         }
 
         $repositoryHash = $this->getRepositoryHash($entityManager, $entityName);

@@ -11,7 +11,7 @@ use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
 
 use function json_decode;
 use function Safe\preg_match;
-use function Safe\sprintf;
+use function sprintf;
 
 use const JSON_THROW_ON_ERROR;
 
@@ -19,14 +19,11 @@ abstract class AbstractJsonResponseContent extends ResponseConstraint
 {
     use JsonResponseTrait;
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function matches($other): bool
+    protected function matches(mixed $other): bool
     {
         try {
             $adapter = self::getResponseAdapter($other);
-        } catch (UnsupportedResponseObjectException $e) {
+        } catch (UnsupportedResponseObjectException) {
             return false;
         }
 
@@ -43,17 +40,14 @@ abstract class AbstractJsonResponseContent extends ResponseConstraint
 
         try {
             $data = json_decode($content, false, 512, JSON_THROW_ON_ERROR);
-        } catch (JsonException $e) {
+        } catch (JsonException) {
             return false;
         }
 
         return $this->doMatch($data, $accessor);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function failureDescription($other): string
+    protected function failureDescription(mixed $other): string
     {
         try {
             $adapter = self::getResponseAdapter($other);
@@ -83,21 +77,17 @@ abstract class AbstractJsonResponseContent extends ResponseConstraint
         return sprintf(
             '%s is valid JSON response (%s)',
             $this->exporter()->shortenedExport($other),
-            $error
+            $error,
         );
     }
 
     /**
      * Whether the constraint matches against data.
-     *
-     * @param mixed $data
      */
-    abstract protected function doMatch($data, PropertyAccessorInterface $accessor): bool;
+    abstract protected function doMatch(mixed $data, PropertyAccessorInterface $accessor): bool;
 
     /**
      * The failure description
-     *
-     * @param mixed $other
      */
-    abstract protected function getFailureDescription($other, PropertyAccessorInterface $accessor): string;
+    abstract protected function getFailureDescription(mixed $other, PropertyAccessorInterface $accessor): string;
 }

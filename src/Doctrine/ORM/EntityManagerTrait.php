@@ -49,7 +49,7 @@ use function dirname;
 use function interface_exists;
 use function method_exists;
 use function preg_quote;
-use function Safe\sprintf;
+use function sprintf;
 use function sys_get_temp_dir;
 
 use const CASE_LOWER;
@@ -59,7 +59,7 @@ trait EntityManagerTrait
 {
     use ProphecyTrait;
 
-    private ?EntityManagerInterface $_entityManager = null;
+    private EntityManagerInterface|null $_entityManager = null;
     private Connection $_connection;
     private Configuration $_configuration;
 
@@ -131,10 +131,8 @@ trait EntityManagerTrait
         // Intentionally empty.
     }
 
-    /**
-     * @param string[]|null $paths
-     */
-    private function loadEntityMetadata(string $className, ?string $driver = null, ?array $paths = null): void
+    /** @param string[]|null $paths */
+    private function loadEntityMetadata(string $className, string|null $driver = null, array|null $paths = null): void
     {
         try {
             $reflectionClass = new ReflectionClass($className);
@@ -164,16 +162,14 @@ trait EntityManagerTrait
         $entityManager->getMetadataFactory()->setMetadataFor($className, $metadata);
     }
 
-    /**
-     * @param string[] $paths
-     */
+    /** @param string[] $paths */
     private function guessMetadataDriver(ReflectionClass $reflectionClass, array $paths): MappingDriver
     {
         if (PHP_VERSION_ID >= 80000) {
             $attributes = array_merge(
                 $reflectionClass->getAttributes(Entity::class),
                 $reflectionClass->getAttributes(MappedSuperclass::class),
-                $reflectionClass->getAttributes(Embeddable::class)
+                $reflectionClass->getAttributes(Embeddable::class),
             );
 
             if (count($attributes) > 0) {
@@ -192,9 +188,7 @@ trait EntityManagerTrait
         throw new RuntimeException(sprintf('Cannot guess metadata driver for class "%s"', $reflectionClass->name));
     }
 
-    /**
-     * @param ProphecyInterface|ObjectRepository $repository
-     */
+    /** @param ProphecyInterface|ObjectRepository $repository */
     private function setRepository(string $entityName, object $repository): void
     {
         $em = $this->getEntityManager();
@@ -215,9 +209,7 @@ trait EntityManagerTrait
         $this->queryMatches('/' . preg_quote($query, '/') . '/', $parameters, $results);
     }
 
-    /**
-     * @param array<string|int, mixed> $parameters
-     */
+    /** @param array<string|int, mixed> $parameters */
     private function executeLike(string $query, array $parameters = [], int $rowCount = 1): void
     {
         $this->executeMatches('/' . preg_quote($query, '/') . '/', $parameters, $rowCount);
@@ -278,9 +270,7 @@ trait EntityManagerTrait
         }
     }
 
-    /**
-     * @param array<string|int, mixed> $parameters
-     */
+    /** @param array<string|int, mixed> $parameters */
     private function executeMatches(string $query, array $parameters = [], int $rowCount = 1): void
     {
         $this->_innerConnection->prepare(new StringMatchesToken($query))

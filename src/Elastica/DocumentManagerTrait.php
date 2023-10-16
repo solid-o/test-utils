@@ -16,7 +16,7 @@ trait DocumentManagerTrait
 {
     use ProphecyTrait;
 
-    private ?DocumentManagerInterface $documentManager;
+    private DocumentManagerInterface|null $documentManager;
 
     /** @var Client|ObjectProphecy */
     private object $client;

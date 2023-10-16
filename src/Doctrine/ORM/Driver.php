@@ -11,16 +11,14 @@ use Doctrine\Persistence\Mapping\Driver\MappingDriver;
 use RuntimeException;
 
 use function implode;
-use function Safe\sprintf;
+use function sprintf;
 
 final class Driver
 {
     public const ANNOTATION = 'annotation';
     public const ATTRIBUTE = 'attribute';
 
-    /**
-     * @param string[] $paths
-     */
+    /** @param string[] $paths */
     public static function createDriver(string $driver, array $paths): MappingDriver
     {
         switch ($driver) {

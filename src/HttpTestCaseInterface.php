@@ -20,9 +20,9 @@ interface HttpTestCaseInterface
     public static function request(
         string $url,
         string $method,
-        $requestData = null,
+        array|string|null $requestData = null,
         array $additionalHeaders = [],
         array $files = [],
-        array $server = []
+        array $server = [],
     ): Response;
 }

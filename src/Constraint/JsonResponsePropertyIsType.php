@@ -8,33 +8,22 @@ use PHPUnit\Framework\Constraint\IsType;
 use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
 
 use function get_debug_type;
-use function Safe\sprintf;
+use function sprintf;
 
 class JsonResponsePropertyIsType extends AbstractJsonResponseContent
 {
-    private string $propertyPath;
-    private string $expected;
-
-    public function __construct(string $propertyPath, string $expected)
+    public function __construct(private readonly string $propertyPath, private string $expected)
     {
-        $this->propertyPath = $propertyPath;
-        $this->expected = $expected;
     }
 
-    /**
-     * @inheritDoc
-     */
-    protected function doMatch($data, PropertyAccessorInterface $accessor): bool
+    protected function doMatch(mixed $data, PropertyAccessorInterface $accessor): bool
     {
         $other = self::readProperty($accessor, $data, $this->propertyPath);
 
         return (new IsType($this->expected))->matches($other);
     }
 
-    /**
-     * @inheritDoc
-     */
-    protected function getFailureDescription($other, PropertyAccessorInterface $accessor): string
+    protected function getFailureDescription(mixed $other, PropertyAccessorInterface $accessor): string
     {
         $other = self::readProperty($accessor, $other, $this->propertyPath);
 

@@ -15,14 +15,11 @@ use function sprintf;
  */
 class StringMatchesToken implements TokenInterface
 {
-    private string $value;
-
     /**
      * Initializes token.
      */
-    public function __construct(string $value)
+    public function __construct(private readonly string $value)
     {
-        $this->value = $value;
     }
 
     /**
@@ -58,7 +55,6 @@ class StringMatchesToken implements TokenInterface
      */
     public function __toString(): string
     {
-        /** @phpstan-ignore-next-line */
         return sprintf('matches("%s")', $this->value);
     }
 }

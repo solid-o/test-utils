@@ -10,44 +10,38 @@ use Solido\Common\Exception\UnsupportedResponseObjectException;
 
 use function json_decode;
 use function Safe\preg_match;
-use function Safe\sprintf;
+use function sprintf;
 
 use const JSON_THROW_ON_ERROR;
 
 final class JsonResponse extends ResponseConstraint
 {
-    /**
-     * {@inheritdoc}
-     */
-    protected function matches($other): bool
+    protected function matches(mixed $other): bool
     {
         try {
             $adapter = self::getResponseAdapter($other);
             if (! preg_match('/application\/json/', $adapter->getContentType())) {
                 return false;
             }
-        } catch (UnsupportedResponseObjectException $e) {
+        } catch (UnsupportedResponseObjectException) {
             return false;
         }
 
         $content = $adapter->getContent();
         try {
             json_decode($content, false, 512, JSON_THROW_ON_ERROR);
-        } catch (JsonException $e) {
+        } catch (JsonException) {
             return false;
         }
 
         return true;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function failureDescription($other): string
+    protected function failureDescription(mixed $other): string
     {
         try {
             $adapter = self::getResponseAdapter($other);
-        } catch (UnsupportedResponseObjectException $e) {
+        } catch (UnsupportedResponseObjectException) {
             return sprintf('%s is a response object', $this->exporter()->shortenedExport($other));
         }
 
@@ -69,7 +63,7 @@ final class JsonResponse extends ResponseConstraint
         return sprintf(
             '%s is valid JSON response (%s)',
             $this->exporter()->shortenedExport($other),
-            $error
+            $error,
         );
     }
 

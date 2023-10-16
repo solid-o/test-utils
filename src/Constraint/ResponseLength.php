@@ -11,7 +11,7 @@ use function count;
 use function is_array;
 use function json_decode;
 use function mb_strlen;
-use function Safe\sprintf;
+use function sprintf;
 
 use const JSON_THROW_ON_ERROR;
 
@@ -19,21 +19,15 @@ final class ResponseLength extends ResponseConstraint
 {
     use ResponseJsonContentTrait;
 
-    private int $length;
-
-    public function __construct(int $length)
+    public function __construct(private readonly int $length)
     {
-        $this->length = $length;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function matches($other): bool
+    protected function matches(mixed $other): bool
     {
         try {
             $adapter = self::getResponseAdapter($other);
-        } catch (UnsupportedResponseObjectException $e) {
+        } catch (UnsupportedResponseObjectException) {
             return false;
         }
 
@@ -49,14 +43,11 @@ final class ResponseLength extends ResponseConstraint
         return array_is_list($other) && count($other) === $this->length;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function failureDescription($other): string
+    protected function failureDescription(mixed $other): string
     {
         try {
             $adapter = self::getResponseAdapter($other);
-        } catch (UnsupportedResponseObjectException $e) {
+        } catch (UnsupportedResponseObjectException) {
             return sprintf('%s is a response object', $this->exporter()->shortenedExport($other));
         }
 

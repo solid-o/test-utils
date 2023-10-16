@@ -8,44 +8,28 @@ use PHPUnit\Framework\Constraint\IsEqual;
 use PHPUnit\Framework\ExpectationFailedException;
 use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
 
-use function Safe\sprintf;
+use function sprintf;
 
 class JsonResponsePropertyEquals extends AbstractJsonResponseContent
 {
-    private string $propertyPath;
-
-    /** @var mixed */
-    private $expected;
-
-    /**
-     * @param mixed $expected
-     */
-    public function __construct(string $propertyPath, $expected)
+    public function __construct(private readonly string $propertyPath, private mixed $expected)
     {
-        $this->propertyPath = $propertyPath;
-        $this->expected = $expected;
     }
 
-    /**
-     * @inheritDoc
-     */
-    protected function doMatch($data, PropertyAccessorInterface $accessor): bool
+    protected function doMatch(mixed $data, PropertyAccessorInterface $accessor): bool
     {
         $other = self::readProperty($accessor, $data, $this->propertyPath);
 
         try {
             (new IsEqual($this->expected))->evaluate($other);
-        } catch (ExpectationFailedException $e) {
+        } catch (ExpectationFailedException) {
             return false;
         }
 
         return true;
     }
 
-    /**
-     * @inheritDoc
-     */
-    protected function getFailureDescription($other, PropertyAccessorInterface $accessor): string
+    protected function getFailureDescription(mixed $other, PropertyAccessorInterface $accessor): string
     {
         $other = self::readProperty($accessor, $other, $this->propertyPath);
 

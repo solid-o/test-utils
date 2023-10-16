@@ -8,7 +8,7 @@ namespace Solido\TestUtils\Doctrine\ORM;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 
-use function Safe\sprintf;
+use function sprintf;
 
 class MockPlatform extends AbstractPlatform
 {

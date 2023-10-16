@@ -18,10 +18,8 @@ abstract class ResponseConstraint extends Constraint
 
     /**
      * Gets the response adapter for the given response object.
-     *
-     * @param mixed $response
      */
-    protected static function getResponseAdapter($response): ResponseAdapterInterface
+    protected static function getResponseAdapter(mixed $response): ResponseAdapterInterface
     {
         if (! is_object($response)) {
             throw new UnsupportedResponseObjectException();

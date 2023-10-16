@@ -27,6 +27,7 @@ class KernelBrowser extends HttpKernelBrowser
     public function catchExceptions(bool $catchExceptions): void
     {
         $this->catchExceptions = $catchExceptions;
+
         parent::catchExceptions($catchExceptions);
     }
 

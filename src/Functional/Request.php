@@ -7,7 +7,7 @@ namespace Solido\TestUtils\Functional;
 use Psr\Http\Message\UploadedFileInterface;
 use Symfony\Component\HttpFoundation\Request as HttpFoundationRequest;
 
-use function Safe\sprintf;
+use function sprintf;
 
 abstract class Request
 {
@@ -17,7 +17,7 @@ abstract class Request
     /** @var array<string, string[]> */
     protected array $headers;
     /** @var array<string, mixed>|string|null */
-    protected $content;
+    protected array|string|null $content = null;
     /** @var array<string, UploadedFileInterface> */
     protected array $files;
 
@@ -44,10 +44,8 @@ abstract class Request
         return $this;
     }
 
-    /**
-     * @param string|string[] $value
-     */
-    public function withHeader(string $name, $value): self
+    /** @param string|string[] $value */
+    public function withHeader(string $name, string|array $value): self
     {
         $this->headers[$name] = (array) $value;
 
@@ -61,10 +59,8 @@ abstract class Request
         return $this->withHeader('Accept', empty($version) ? $mime : sprintf('%s; version=%s', $mime, $version));
     }
 
-    /**
-     * @param array<string, mixed>|string|null $content
-     */
-    public function withContent($content): self
+    /** @param array<string, mixed>|string|null $content */
+    public function withContent(array|string|null $content): self
     {
         $this->content = $content;
 

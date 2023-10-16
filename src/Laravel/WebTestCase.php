@@ -34,10 +34,9 @@ use function class_exists;
 use function class_uses_recursive;
 use function debug_backtrace;
 use function func_num_args;
-use function get_class;
 use function Safe\array_flip;
 use function Safe\getcwd;
-use function Safe\sprintf;
+use function sprintf;
 use function trigger_error;
 
 use const DEBUG_BACKTRACE_PROVIDE_OBJECT;
@@ -45,7 +44,7 @@ use const E_USER_NOTICE;
 
 class WebTestCase extends TestCase
 {
-    protected static ?Application $kernel = null;
+    protected static Application|null $kernel = null;
     protected static bool $booted = false;
     protected static string $kernelClass;
     protected static string $consoleKernelClass;
@@ -67,7 +66,7 @@ class WebTestCase extends TestCase
     /**
      * The exception thrown while running an application destruction callback.
      */
-    protected static ?Throwable $callbackException = null;
+    protected static Throwable|null $callbackException = null;
 
     /**
      * Register a callback to be run after the application is created.
@@ -83,10 +82,7 @@ class WebTestCase extends TestCase
         $callback();
     }
 
-    /**
-     * @return mixed
-     */
-    public function __get(string $name)
+    public function __get(string $name): mixed
     {
         if ($name === 'app') {
             static::bootKernel();
@@ -101,9 +97,9 @@ class WebTestCase extends TestCase
                         $reflector->getName(),
                         $name,
                         $backtrace[0]['file'] ?? '<unknown>',
-                        $backtrace[0]['line'] ?? '<unknown>'
+                        $backtrace[0]['line'] ?? '<unknown>',
                     ),
-                    E_USER_NOTICE
+                    E_USER_NOTICE,
                 );
 
                 return $this->$name;
@@ -115,7 +111,7 @@ class WebTestCase extends TestCase
             };
             $backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2);
             $scopeObject = $backtrace[1]['object'] ?? new stdClass();
-            $scopeClass = get_class($scopeObject);
+            $scopeClass = $scopeObject::class;
 
             assert($scopeClass !== false);
             $accessor = $accessor->bindTo($scopeObject, $scopeClass);
@@ -192,7 +188,7 @@ class WebTestCase extends TestCase
 
         static::$kernel->singleton(
             ExceptionHandler::class,
-            $_SERVER['EXCEPTION_HANDLER_CLASS'] ?? $_ENV['EXCEPTION_HANDLER_CLASS'] ?? Handler::class
+            $_SERVER['EXCEPTION_HANDLER_CLASS'] ?? $_ENV['EXCEPTION_HANDLER_CLASS'] ?? Handler::class,
         );
 
         foreach (static::$afterApplicationCreatedCallbacks as $callback) {
@@ -255,9 +251,7 @@ class WebTestCase extends TestCase
         return self::getClient($client); /* @phpstan-ignore-line */
     }
 
-    /**
-     * @return string The Kernel class name
-     */
+    /** @return string The Kernel class name */
     protected static function getKernelClass(): string
     {
         if (! isset($_SERVER['KERNEL_CLASS']) && ! isset($_ENV['KERNEL_CLASS'])) {
@@ -272,9 +266,7 @@ class WebTestCase extends TestCase
         return $class;
     }
 
-    /**
-     * @return string The Kernel class name
-     */
+    /** @return string The Kernel class name */
     protected static function getConsoleKernelClass(): string
     {
         $class = $_ENV['CONSOLE_KERNEL_CLASS'] ?? $_SERVER['CONSOLE_KERNEL_CLASS'] ?? ConsoleKernel::class;
@@ -285,7 +277,7 @@ class WebTestCase extends TestCase
         return $class;
     }
 
-    private static function getClient(?AbstractBrowser $newClient = null): AbstractBrowser
+    private static function getClient(AbstractBrowser|null $newClient = null): AbstractBrowser
     {
         static $client;
 

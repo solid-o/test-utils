@@ -11,7 +11,6 @@ use Refugis\ODM\Elastica\Metadata\MetadataFactory;
 
 use function array_values;
 use function assert;
-use function get_class;
 use function is_object;
 
 class FakeMetadataFactory extends MetadataFactory
@@ -40,7 +39,7 @@ class FakeMetadataFactory extends MetadataFactory
     public function getMetadataFor($className): ClassMetadataInterface
     {
         if (is_object($className)) {
-            $className = get_class($className);
+            $className = $className::class;
         }
 
         if (! isset($this->metadata[$className])) {
@@ -56,7 +55,7 @@ class FakeMetadataFactory extends MetadataFactory
     public function hasMetadataFor($className): bool
     {
         if (is_object($className)) {
-            $className = get_class($className);
+            $className = $className::class;
         }
 
         return isset($this->metadata[$className]);

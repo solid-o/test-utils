@@ -52,20 +52,16 @@ trait JsonResponseTrait
 
     /**
      * Asserts the response JSON property equals the given value.
-     *
-     * @param mixed $expected
      */
-    public static function assertJsonResponsePropertyEquals($expected, string $propertyPath, string $message = ''): void
+    public static function assertJsonResponsePropertyEquals(mixed $expected, string $propertyPath, string $message = ''): void
     {
         self::assertThat(self::getResponse(), new JsonResponsePropertyEquals($propertyPath, $expected), $message);
     }
 
     /**
      * Asserts the response JSON property not equals the given value.
-     *
-     * @param mixed $unexpected
      */
-    public static function assertJsonResponsePropertyNotEquals($unexpected, string $propertyPath, string $message = ''): void
+    public static function assertJsonResponsePropertyNotEquals(mixed $unexpected, string $propertyPath, string $message = ''): void
     {
         self::assertThat(self::getResponse(), new LogicalNot(new JsonResponsePropertyEquals($propertyPath, $unexpected)), $message);
     }
@@ -119,10 +115,8 @@ trait JsonResponseTrait
      * ex:
      *  - ["Hello", "world", "!"] contains "world"
      *  - [{one: "Hello"}] contains (object)['one' => 'Hello']
-     *
-     * @param mixed $expected
      */
-    public static function assertJsonResponsePropertyContains($expected, string $propertyPath, string $message = ''): void
+    public static function assertJsonResponsePropertyContains(mixed $expected, string $propertyPath, string $message = ''): void
     {
         self::assertThat(self::getResponse(), new JsonResponsePropertyContains($propertyPath, $expected), $message);
     }
@@ -143,10 +137,8 @@ trait JsonResponseTrait
      * ex:
      *  - ["Hello", "world", "!"] contains "folks"
      *  - [{one: "Hello"}] contains (object)['two' => 'Hello']
-     *
-     * @param mixed $unexpected
      */
-    public static function assertJsonResponsePropertyNotContains($unexpected, string $propertyPath, string $message = ''): void
+    public static function assertJsonResponsePropertyNotContains(mixed $unexpected, string $propertyPath, string $message = ''): void
     {
         self::assertThat(self::getResponse(), new LogicalNot(new JsonResponsePropertyContains($propertyPath, $unexpected)), $message);
     }

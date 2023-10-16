@@ -12,7 +12,7 @@ use function count;
 use function implode;
 use function is_array;
 use function is_string;
-use function Safe\sprintf;
+use function sprintf;
 
 class SecurityPolicyChecked extends Constraint
 {
@@ -22,19 +22,14 @@ class SecurityPolicyChecked extends Constraint
     /** @var array<string, mixed>[] */
     private array $remaining;
 
-    /**
-     * @param array<string, mixed> ...$checkedPolicies
-     */
+    /** @param array<string, mixed> ...$checkedPolicies */
     public function __construct(array ...$checkedPolicies)
     {
         $this->checkedPolicies = $checkedPolicies;
         $this->remaining = [];
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function matches($other): bool
+    protected function matches(mixed $other): bool
     {
         if (! is_array($other)) {
             return false;
@@ -61,10 +56,7 @@ class SecurityPolicyChecked extends Constraint
         return count($other) === 0;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function failureDescription($other): string
+    protected function failureDescription(mixed $other): string
     {
         $message = sprintf(
             'polic%s ha%s been checked: ',
@@ -82,7 +74,7 @@ class SecurityPolicyChecked extends Constraint
     {
         return sprintf(
             'security polic%s has been checked',
-            count($this->checkedPolicies) === 1 ? 'y' : 'ies'
+            count($this->checkedPolicies) === 1 ? 'y' : 'ies',
         );
     }
 }

@@ -10,35 +10,26 @@ use function array_map;
 use function count;
 use function implode;
 use function json_encode;
-use function Safe\sprintf;
+use function sprintf;
 
 use const JSON_THROW_ON_ERROR;
 
 final class ResponseHasHeaders extends ResponseConstraint
 {
     /** @var string[] */
-    private array $headers;
-
-    /** @var string[] */
     private array $missing;
 
-    /**
-     * @param string[] $headers
-     */
-    public function __construct(array $headers)
+    /** @param string[] $headers */
+    public function __construct(private readonly array $headers)
     {
-        $this->headers = $headers;
         $this->missing = [];
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function matches($other): bool
+    protected function matches(mixed $other): bool
     {
         try {
             $adapter = self::getResponseAdapter($other);
-        } catch (UnsupportedResponseObjectException $e) {
+        } catch (UnsupportedResponseObjectException) {
             return false;
         }
 
@@ -54,14 +45,11 @@ final class ResponseHasHeaders extends ResponseConstraint
         return count($this->missing) === 0;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function failureDescription($other): string
+    protected function failureDescription(mixed $other): string
     {
         try {
             self::getResponseAdapter($other);
-        } catch (UnsupportedResponseObjectException $e) {
+        } catch (UnsupportedResponseObjectException) {
             return sprintf('%s is a response object', $this->exporter()->shortenedExport($other));
         }
 
@@ -71,7 +59,7 @@ final class ResponseHasHeaders extends ResponseConstraint
             count($this->missing) === 1 ?
                 json_encode($this->missing[0], JSON_THROW_ON_ERROR) :
                 implode(', ', array_map('json_encode', $this->headers)),
-            count($this->missing) === 1 ? '' : 's'
+            count($this->missing) === 1 ? '' : 's',
         );
     }
 
@@ -82,7 +70,7 @@ final class ResponseHasHeaders extends ResponseConstraint
             count($this->headers) === 1 ?
                 json_encode($this->headers[0], JSON_THROW_ON_ERROR) :
                 implode(', ', array_map('json_encode', $this->headers)),
-            count($this->headers) === 1 ? '' : 's'
+            count($this->headers) === 1 ? '' : 's',
         );
     }
 }

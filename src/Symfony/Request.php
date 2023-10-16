@@ -19,14 +19,11 @@ use function sys_get_temp_dir;
 
 class Request extends BaseRequest
 {
-    private HttpTestCaseInterface $testCase;
     private Response $response;
 
-    public function __construct(HttpTestCaseInterface $testCase)
+    public function __construct(private HttpTestCaseInterface $testCase)
     {
         parent::__construct();
-
-        $this->testCase = $testCase;
     }
 
     public function __destruct()

@@ -11,7 +11,7 @@ use function class_exists;
 use function count;
 use function implode;
 use function in_array;
-use function Safe\sprintf;
+use function sprintf;
 
 final class ResponseStatusCode extends ResponseConstraint
 {
@@ -23,28 +23,22 @@ final class ResponseStatusCode extends ResponseConstraint
         $this->validCodes = $validCodes;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function matches($other): bool
+    protected function matches(mixed $other): bool
     {
         try {
             $adapter = self::getResponseAdapter($other);
-        } catch (UnsupportedResponseObjectException $e) {
+        } catch (UnsupportedResponseObjectException) {
             return false;
         }
 
         return in_array($adapter->getStatusCode(), $this->validCodes, true);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function failureDescription($other): string
+    protected function failureDescription(mixed $other): string
     {
         try {
             $adapter = self::getResponseAdapter($other);
-        } catch (UnsupportedResponseObjectException $e) {
+        } catch (UnsupportedResponseObjectException) {
             return sprintf('%s is a response object', $this->exporter()->shortenedExport($other));
         }
 

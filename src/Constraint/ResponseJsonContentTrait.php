@@ -12,9 +12,7 @@ use function Safe\preg_match;
 
 use const JSON_ERROR_NONE;
 
-/**
- * @internal
- */
+/** @internal */
 trait ResponseJsonContentTrait
 {
     private function isJson(ResponseAdapterInterface $response): bool

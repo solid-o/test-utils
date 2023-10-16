@@ -7,29 +7,21 @@ namespace Solido\TestUtils\Constraint;
 use Solido\Common\Exception\UnsupportedResponseObjectException;
 
 use function json_encode;
-use function Safe\sprintf;
+use function sprintf;
 
 use const JSON_THROW_ON_ERROR;
 
 final class ResponseHeaderSame extends ResponseConstraint
 {
-    private string $header;
-    private string $value;
-
-    public function __construct(string $header, string $value)
+    public function __construct(private readonly string $header, private readonly string $value)
     {
-        $this->header = $header;
-        $this->value = $value;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function matches($other): bool
+    protected function matches(mixed $other): bool
     {
         try {
             $adapter = self::getResponseAdapter($other);
-        } catch (UnsupportedResponseObjectException $e) {
+        } catch (UnsupportedResponseObjectException) {
             return false;
         }
 
@@ -38,14 +30,11 @@ final class ResponseHeaderSame extends ResponseConstraint
         return $header === $this->value;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function failureDescription($other): string
+    protected function failureDescription(mixed $other): string
     {
         try {
             $adapter = self::getResponseAdapter($other);
-        } catch (UnsupportedResponseObjectException $e) {
+        } catch (UnsupportedResponseObjectException) {
             return sprintf('%s is a response object', $this->exporter()->shortenedExport($other));
         }
 
@@ -65,7 +54,7 @@ final class ResponseHeaderSame extends ResponseConstraint
         return sprintf(
             'has header %s with value %s',
             json_encode($this->header, JSON_THROW_ON_ERROR),
-            json_encode($this->value, JSON_THROW_ON_ERROR)
+            json_encode($this->value, JSON_THROW_ON_ERROR),
         );
     }
 }

@@ -5,6 +5,9 @@
         ]
     },
     "logs": {
+        "stryker": {
+            "report": "master"
+        },
         "text": "infection\/infection.log",
         "html": "infection\/infection.html"
     },

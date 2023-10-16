@@ -14,30 +14,20 @@ use function get_debug_type;
 use function is_array;
 use function json_decode;
 use function json_encode;
-use function Safe\sprintf;
+use function sprintf;
 
 use const JSON_THROW_ON_ERROR;
 
 class JsonResponsePropertyContains extends AbstractJsonResponseContent
 {
-    private string $propertyPath;
+    private mixed $expected;
 
-    /** @var mixed */
-    private $expected;
-
-    /**
-     * @param mixed $expected
-     */
-    public function __construct(string $propertyPath, $expected)
+    public function __construct(private readonly string $propertyPath, mixed $expected)
     {
-        $this->propertyPath = $propertyPath;
         $this->expected = json_decode(json_encode($expected, JSON_THROW_ON_ERROR), false, 512, JSON_THROW_ON_ERROR);
     }
 
-    /**
-     * @inheritDoc
-     */
-    protected function doMatch($data, PropertyAccessorInterface $accessor): bool
+    protected function doMatch(mixed $data, PropertyAccessorInterface $accessor): bool
     {
         if (! is_array($data) && ! $data instanceof stdClass) {
             throw new ExpectationFailedException(sprintf('Property "%s" is not an array (%s)', $this->propertyPath, get_debug_type($data)));
@@ -52,10 +42,7 @@ class JsonResponsePropertyContains extends AbstractJsonResponseContent
         return $constraint->matches($other);
     }
 
-    /**
-     * @inheritDoc
-     */
-    protected function getFailureDescription($other, PropertyAccessorInterface $accessor): string
+    protected function getFailureDescription(mixed $other, PropertyAccessorInterface $accessor): string
     {
         $other = self::readProperty($accessor, $other, $this->propertyPath);
 

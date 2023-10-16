@@ -50,7 +50,7 @@ trait FunctionalTestTrait
     use JsonResponseTrait;
     use ResponseStatusTrait;
 
-    private static ?AbstractBrowser $client = null;
+    private static AbstractBrowser|null $client = null;
     private static string $authorizationToken;
 
     /**
@@ -92,7 +92,7 @@ trait FunctionalTestTrait
      * @param string|string[]|Urn|null $actions
      * @param string|string[]|Urn|null $resources
      */
-    protected static function addGrant(string $effect, $subjects, $actions, $resources): void
+    protected static function addGrant(string $effect, string|array|Urn|null $subjects, string|array|Urn|null $actions, string|array|Urn|null $resources): void
     {
         TestPolicyChecker::addGrant($effect, $subjects, $actions, $resources);
     }
@@ -115,7 +115,7 @@ trait FunctionalTestTrait
      *
      * @return array<string, string>
      */
-    private static function getMergePatchHeader(?string $version = null): array
+    private static function getMergePatchHeader(string|null $version = null): array
     {
         $mergePatchHeader = ['Content-Type' => 'application/merge-patch+json'];
         if ($version === null) {
@@ -134,7 +134,7 @@ trait FunctionalTestTrait
     private static function get(
         string $url,
         array $additionalHeaders = [],
-        array $server = []
+        array $server = [],
     ): Response {
         return self::request($url, 'GET', null, $additionalHeaders, [], $server);
     }
@@ -149,10 +149,10 @@ trait FunctionalTestTrait
      */
     private static function post(
         string $url,
-        $requestData = null,
+        array|string|null $requestData = null,
         array $additionalHeaders = [],
         array $files = [],
-        array $server = []
+        array $server = [],
     ): Response {
         return self::request($url, 'POST', $requestData, $additionalHeaders, $files, $server);
     }
@@ -167,10 +167,10 @@ trait FunctionalTestTrait
      */
     private static function put(
         string $url,
-        $requestData = null,
+        array|string|null $requestData = null,
         array $additionalHeaders = [],
         array $files = [],
-        array $server = []
+        array $server = [],
     ): Response {
         return self::request($url, 'PUT', $requestData, $additionalHeaders, $files, $server);
     }
@@ -185,10 +185,10 @@ trait FunctionalTestTrait
      */
     private static function patch(
         string $url,
-        $requestData = null,
+        array|string|null $requestData = null,
         array $additionalHeaders = [],
         array $files = [],
-        array $server = []
+        array $server = [],
     ): Response {
         return self::request($url, 'PATCH', $requestData, $additionalHeaders, $files, $server);
     }
@@ -202,7 +202,7 @@ trait FunctionalTestTrait
     private static function delete(
         string $url,
         array $additionalHeaders = [],
-        array $server = []
+        array $server = [],
     ): Response {
         return self::request($url, 'DELETE', null, $additionalHeaders, [], $server);
     }
@@ -218,9 +218,7 @@ trait FunctionalTestTrait
         return new \Solido\TestUtils\Symfony\Request($this);
     }
 
-    /**
-     * @postCondition
-     */
+    /** @postCondition */
     public function checkContracts(): void
     {
         gc_collect_cycles();
@@ -238,10 +236,10 @@ trait FunctionalTestTrait
     public static function request(
         string $url,
         string $method,
-        $requestData = null,
+        array|string|null $requestData = null,
         array $additionalHeaders = [],
         array $files = [],
-        array $server = []
+        array $server = [],
     ): Response {
         $headers = new HeaderBag(['accept' => 'application/json']);
         $headers->add($additionalHeaders);
@@ -269,7 +267,7 @@ trait FunctionalTestTrait
             $request->getParameters(),
             $request->getFiles(),
             $request->getServer(),
-            $request->getContent()
+            $request->getContent(),
         );
 
         $response = self::$client->getResponse();
@@ -278,7 +276,7 @@ trait FunctionalTestTrait
             $result = new Response($contents, $response->getStatusCode(), $response->headers->all());
             $result->setStatusCode(
                 $response->getStatusCode(),
-                (fn () => $this->statusText)->bindTo($response, Response::class)() // phpcs:ignore Squiz.Scope.StaticThisUsage.Found
+                (fn () => $this->statusText)->bindTo($response, Response::class)(), // phpcs:ignore Squiz.Scope.StaticThisUsage.Found
             );
 
             $charset = $response->getCharset();
@@ -325,12 +323,10 @@ trait FunctionalTestTrait
 
     /**
      * Checks that the specified policies have been checked by security policy checker component.
-     *
-     * @param mixed ...$policies
      */
-    public static function assertGrantHasBeenChecked(...$policies): void
+    public static function assertGrantHasBeenChecked(mixed ...$policies): void
     {
-        $checked = (static function (): ?array {
+        $checked = (static function (): array|null {
             $client = self::$client;
             if (! $client instanceof KernelBrowser) {
                 return null;
@@ -355,10 +351,8 @@ trait FunctionalTestTrait
         self::assertThat($policies, new SecurityPolicyChecked(...$checked));
     }
 
-    /**
-     * @param string|array<string|int, mixed>|object $subset
-     */
-    public static function assertResponseContainsSubset($subset, string $message = ''): void
+    /** @param string|array<string|int, mixed>|object $subset */
+    public static function assertResponseContainsSubset(string|array|object $subset, string $message = ''): void
     {
         self::assertThat(static::getResponse(), new ResponseSubset($subset), $message);
     }

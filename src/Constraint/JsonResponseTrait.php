@@ -21,11 +21,9 @@ use function get_object_vars;
 use function implode;
 use function is_array;
 use function is_object;
-use function Safe\sprintf;
+use function sprintf;
 
-/**
- * @internal
- */
+/** @internal */
 trait JsonResponseTrait
 {
     /**
@@ -52,12 +50,9 @@ trait JsonResponseTrait
      *
      * This will throw Exception if the value does not exist
      *
-     * @param mixed $data
      * @param string $propertyPath e.g. firstName, battles[0].programmer.username
-     *
-     * @return mixed
      */
-    protected static function readProperty(PropertyAccessorInterface $accessor, $data, string $propertyPath)
+    protected static function readProperty(PropertyAccessorInterface $accessor, mixed $data, string $propertyPath): mixed
     {
         if ($propertyPath === '.') {
             return $data;
@@ -87,7 +82,7 @@ trait JsonResponseTrait
                         } else {
                             $path[] = $segment . ' [ERROR. Available keys: ' . implode(
                                 ', ',
-                                array_map('json_encode', array_keys(is_array($zval) ? $zval : get_object_vars($zval)))
+                                array_map('json_encode', array_keys(is_array($zval) ? $zval : get_object_vars($zval))),
                             ) . ']';
                         }
 

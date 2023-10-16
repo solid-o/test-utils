@@ -6,32 +6,26 @@ namespace Solido\TestUtils\Constraint;
 
 use Solido\Common\Exception\UnsupportedResponseObjectException;
 
-use function Safe\sprintf;
+use function sprintf;
 
 final class ResponseIsRedirection extends ResponseConstraint
 {
-    /**
-     * {@inheritdoc}
-     */
-    protected function matches($other): bool
+    protected function matches(mixed $other): bool
     {
         try {
             $adapter = self::getResponseAdapter($other);
-        } catch (UnsupportedResponseObjectException $e) {
+        } catch (UnsupportedResponseObjectException) {
             return false;
         }
 
         return $adapter->getStatusCode() >= 300 && $adapter->getStatusCode() < 400;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function failureDescription($other): string
+    protected function failureDescription(mixed $other): string
     {
         try {
             self::getResponseAdapter($other);
-        } catch (UnsupportedResponseObjectException $e) {
+        } catch (UnsupportedResponseObjectException) {
             return sprintf('%s is a response object', $this->exporter()->shortenedExport($other));
         }
 
