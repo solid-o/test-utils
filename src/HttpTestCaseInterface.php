@@ -13,7 +13,7 @@ interface HttpTestCaseInterface
      * Performs a request.
      *
      * @param array<string, mixed>|string $requestData
-     * @param array<string, string> $additionalHeaders
+     * @param array<string, string|string[]> $additionalHeaders
      * @param UploadedFile[] $files
      * @param array<string, string> $server
      */

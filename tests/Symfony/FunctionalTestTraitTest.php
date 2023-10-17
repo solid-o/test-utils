@@ -156,11 +156,15 @@ class FunctionalTestTraitTest extends TestCase
         $client = $this->prophesize(KernelBrowser::class);
         ConcreteFunctionalTestTrait::setClient($client->reveal());
 
+        $file = new UploadedFile(__DIR__ . '/../fixtures/photo.jpg', 'photo.jpg', 'image/jpeg', UPLOAD_ERR_OK, true);
         $client->request(
             'GET',
             '/',
             [],
-            Argument::any(),
+            Argument::that(function (array $v) use ($file) {
+                Assert::assertSame($file, $v[0]);
+                return true;
+            }),
             ['HTTP_ACCEPT' => 'application/json', 'CONTENT_TYPE' => 'multipart/form-data'],
             null
         )->shouldBeCalled();
@@ -173,7 +177,7 @@ class FunctionalTestTraitTest extends TestCase
             'GET',
             null,
             ['Accept' => 'application/json'],
-            [new UploadedFile(__DIR__ . '/../fixtures/photo.jpg', 'photo.jpg', 'image/jpeg', UPLOAD_ERR_OK, true)]
+            [$file]
         );
     }
 
@@ -185,7 +189,7 @@ class FunctionalTestTraitTest extends TestCase
 
         $response = new StreamedResponse(static function (): void {
             echo 'this should not be visible';
-        });
+        }, Response::HTTP_CREATED);
 
         $client->request('GET', '/', Argument::cetera())
             ->will(function () use ($crawler, $response): Crawler { // phpcs:ignore
@@ -201,6 +205,8 @@ class FunctionalTestTraitTest extends TestCase
 
         ob_start();
         $response = ConcreteFunctionalTestTrait::request('/', 'GET');
+        self::assertEquals('1.1', $response->getProtocolVersion());
+        self::assertEquals(Response::HTTP_CREATED, $response->getStatusCode());
         self::assertEquals('', ob_get_clean());
         self::assertEquals('this should not be visible', $response->getContent());
     }

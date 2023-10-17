@@ -303,13 +303,11 @@ trait FunctionalTestTrait
     }
 
     /**
-     * @internal
-     *
      * @param string[][] $headers
      *
-     * @return iterable<string, string[]>
+     * @return Generator<string, string[]>
      */
-    public static function _formatPhpHeaders(array $headers): Generator // phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore
+    private static function _formatPhpHeaders(array $headers): Generator // phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore
     {
         $keyToMaintain = ['content-length', 'content-md5', 'content-type', 'php_auth_user', 'php_auth_pw'];
 
@@ -372,7 +370,7 @@ trait FunctionalTestTrait
         self::assertThat(static::getResponse(), new LogicalNot(new ResponseHasHeaders([$header])), $message);
     }
 
-    protected static function enableProfiler(): void
+    private static function enableProfiler(): void
     {
         static::$client->enableProfiler();
     }

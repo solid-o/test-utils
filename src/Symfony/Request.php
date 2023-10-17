@@ -10,7 +10,6 @@ use Solido\TestUtils\HttpTestCaseInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Response as HttpResponse;
 
-use function array_map;
 use function Safe\fclose;
 use function Safe\fopen;
 use function Safe\fwrite;
@@ -21,7 +20,7 @@ class Request extends BaseRequest
 {
     private Response $response;
 
-    public function __construct(private HttpTestCaseInterface $testCase)
+    public function __construct(private readonly HttpTestCaseInterface $testCase)
     {
         parent::__construct();
     }
@@ -52,8 +51,6 @@ class Request extends BaseRequest
             $files[] = new UploadedFile($tmpFile, $file->getClientFilename() ?? 'file', $file->getClientMediaType(), $file->getError(), true);
         }
 
-        $headers = array_map(static fn (array $header) => $header[0], $this->headers);
-
-        return $this->testCase::request($this->path, $this->method, $this->content, $headers, $files);
+        return $this->testCase::request($this->path, $this->method, $this->content, $this->headers, $files);
     }
 }

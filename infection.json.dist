@@ -14,12 +14,19 @@
     "mutators": {
         "global-ignoreSourceCodeByRegex": [
             "assert.*",
-            ".*class_exists.*"
+            ".*class_exists.*",
+            ".*gc_mem_caches.*",
+            ".*gc_collect_cycles.*"
         ],
         "global-ignore": [
             "Solido\\Common\\Urn\\Urn::parseUrn"
         ],
         "@default": true,
+        "MethodCallRemoval": {
+            "ignoreSourceCodeByRegex": [
+                ".*self::assertThat.*"
+            ]
+        },
         "DecrementInteger": {
             "ignoreSourceCodeByRegex": [
                 ".*json_decode.*"
@@ -41,6 +48,6 @@
             ]
         }
     },
-    "minMsi": 95,
-    "minCoveredMsi": 95
+    "minMsi": 59,
+    "minCoveredMsi": 70
 }

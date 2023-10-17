@@ -65,7 +65,7 @@ class FunctionalTestTraitTest extends TestCase
             [],
             ['HTTP_ACCEPT' => 'application/json', 'CONTENT_TYPE' => 'application/json'],
             null
-        )->shouldBeCalled();
+        )->shouldBeCalledTimes(1);
 
         $client->getResponse()->willReturn(new Response());
 
@@ -92,7 +92,7 @@ class FunctionalTestTraitTest extends TestCase
             [],
             ['HTTP_ACCEPT' => 'application/json', 'CONTENT_TYPE' => 'application/json'],
             null
-        )->shouldBeCalled();
+        )->shouldBeCalledTimes(1);
 
         $client->getResponse()->willReturn(new Response());
 
@@ -171,6 +171,7 @@ class FunctionalTestTraitTest extends TestCase
 
         ob_start();
         $response = ConcreteFunctionalTestTrait::request('/', 'GET');
+        self::assertEquals('1.1', $response->getProtocolVersion());
         self::assertEquals('', ob_get_clean());
         self::assertEquals('this should not be visible', $response->getContent());
     }
