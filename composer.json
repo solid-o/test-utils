@@ -31,11 +31,14 @@
         "refugis/elastica-odm": "2.x-dev",
         "roave/security-advisories": "dev-master",
         "solido/php-coding-standards": "dev-master",
+        "solido/query-language": "dev-master",
         "solido/security-policy-checker": "dev-master",
         "symfony/browser-kit": "^5.4 || ^6.0",
         "symfony/cache": "^5.4 || ^6.0",
         "symfony/framework-bundle": "^5.4 || ^6.0",
-        "symfony/property-access": "^5.4 || ^6.0"
+        "symfony/property-access": "^5.4 || ^6.0",
+        "symfony/translation": "^5.4 || ^6.0",
+        "symfony/validator": "^5.4 || ^6.0"
     },
     "autoload": {
         "psr-4": {
