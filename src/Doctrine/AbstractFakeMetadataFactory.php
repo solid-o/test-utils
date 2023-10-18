@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Solido\TestUtils\Doctrine;
 
+use Doctrine\Common\Util\ClassUtils;
 use Doctrine\Persistence\Mapping\ClassMetadata;
 use Doctrine\Persistence\Mapping\ClassMetadataFactory;
 use Doctrine\Persistence\Mapping\MappingException;
@@ -47,6 +48,10 @@ class AbstractFakeMetadataFactory implements ClassMetadataFactory
      */
     public function getMetadataFor($className): ClassMetadata
     {
+        if (class_exists(ClassUtils::class)) {
+            $className = ClassUtils::getRealClass($className);
+        }
+
         if (! isset($this->metadata[$className])) {
             throw new MappingException('Cannot find metadata for "' . $className . '"');
         }
@@ -59,6 +64,10 @@ class AbstractFakeMetadataFactory implements ClassMetadataFactory
      */
     public function hasMetadataFor($className): bool
     {
+        if (class_exists(ClassUtils::class)) {
+            $className = ClassUtils::getRealClass($className);
+        }
+
         return isset($this->metadata[$className]);
     }
 
@@ -67,6 +76,10 @@ class AbstractFakeMetadataFactory implements ClassMetadataFactory
      */
     public function setMetadataFor($className, $class): void
     {
+        if (class_exists(ClassUtils::class)) {
+            $className = ClassUtils::getRealClass($className);
+        }
+
         $this->metadata[$className] = $class;
     }
 
