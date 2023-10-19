@@ -45,6 +45,8 @@ class AbstractFakeMetadataFactory implements ClassMetadataFactory
 
     /**
      * {@inheritdoc}
+     *
+     * @param class-string $className
      */
     public function getMetadataFor($className): ClassMetadata
     {
@@ -61,6 +63,8 @@ class AbstractFakeMetadataFactory implements ClassMetadataFactory
 
     /**
      * {@inheritdoc}
+     *
+     * @param class-string $className
      */
     public function hasMetadataFor($className): bool
     {
@@ -73,6 +77,8 @@ class AbstractFakeMetadataFactory implements ClassMetadataFactory
 
     /**
      * {@inheritdoc}
+     *
+     * @param class-string $className
      */
     public function setMetadataFor($className, $class): void
     {

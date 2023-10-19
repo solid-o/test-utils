@@ -30,7 +30,6 @@ class StringMatchesToken implements TokenInterface
     public function scoreArgument($argument)
     {
         return is_string($argument) &&
-            /** @phpstan-ignore-next-line */
             preg_match($this->value, $argument) === 1 ? 6 : false;
     }
 
