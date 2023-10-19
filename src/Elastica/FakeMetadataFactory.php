@@ -19,14 +19,14 @@ class FakeMetadataFactory extends MetadataFactory
     private array $metadata;
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function __construct()
     {
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getAllMetadata(): array
     {
@@ -34,7 +34,7 @@ class FakeMetadataFactory extends MetadataFactory
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getMetadataFor($className): ClassMetadataInterface
     {
@@ -50,7 +50,7 @@ class FakeMetadataFactory extends MetadataFactory
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function hasMetadataFor($className): bool
     {
@@ -62,7 +62,7 @@ class FakeMetadataFactory extends MetadataFactory
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function setMetadataFor($className, $class): void
     {
@@ -71,7 +71,7 @@ class FakeMetadataFactory extends MetadataFactory
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function isTransient($className): bool
     {

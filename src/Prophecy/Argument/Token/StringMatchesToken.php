@@ -23,7 +23,7 @@ class StringMatchesToken implements TokenInterface
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @param mixed $argument
      */

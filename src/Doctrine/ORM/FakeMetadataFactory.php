@@ -17,7 +17,7 @@ class FakeMetadataFactory extends AbstractFakeMetadataFactory
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function setMetadataFor($className, $class): void
     {

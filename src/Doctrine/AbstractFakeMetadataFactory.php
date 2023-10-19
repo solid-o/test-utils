@@ -11,6 +11,7 @@ use Doctrine\Persistence\Mapping\MappingException;
 use Doctrine\Persistence\Mapping\RuntimeReflectionService;
 
 use function array_values;
+use function class_exists;
 
 class AbstractFakeMetadataFactory implements ClassMetadataFactory
 {
@@ -19,7 +20,7 @@ class AbstractFakeMetadataFactory implements ClassMetadataFactory
     protected RuntimeReflectionService $reflectionService;
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function __construct()
     {
@@ -36,7 +37,7 @@ class AbstractFakeMetadataFactory implements ClassMetadataFactory
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getAllMetadata(): array
     {
@@ -44,7 +45,7 @@ class AbstractFakeMetadataFactory implements ClassMetadataFactory
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @param class-string $className
      */
@@ -62,7 +63,7 @@ class AbstractFakeMetadataFactory implements ClassMetadataFactory
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @param class-string $className
      */
@@ -76,7 +77,7 @@ class AbstractFakeMetadataFactory implements ClassMetadataFactory
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @param class-string $className
      */
@@ -90,7 +91,7 @@ class AbstractFakeMetadataFactory implements ClassMetadataFactory
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function isTransient($className): bool
     {
