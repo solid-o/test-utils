@@ -32,7 +32,7 @@ class KernelBrowser extends HttpKernelBrowser
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function doRequest($request): Response
     {

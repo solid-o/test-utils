@@ -20,7 +20,7 @@ final class TestRepositoryFactory implements RepositoryFactory
     private array $repositoryList = [];
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getRepository(EntityManagerInterface $entityManager, $entityName): ObjectRepository
     {

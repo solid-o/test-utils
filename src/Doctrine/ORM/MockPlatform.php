@@ -13,7 +13,7 @@ use function sprintf;
 class MockPlatform extends AbstractPlatform
 {
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getBooleanTypeDeclarationSQL(array $column): string
     {
@@ -21,7 +21,7 @@ class MockPlatform extends AbstractPlatform
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getIntegerTypeDeclarationSQL(array $column): string
     {
@@ -33,7 +33,7 @@ class MockPlatform extends AbstractPlatform
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getBigIntTypeDeclarationSQL(array $column): string
     {
@@ -45,7 +45,7 @@ class MockPlatform extends AbstractPlatform
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getSmallIntTypeDeclarationSQL(array $column): string
     {
@@ -57,7 +57,7 @@ class MockPlatform extends AbstractPlatform
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function _getCommonIntegerTypeDeclarationSQL(array $column): string
     {
@@ -69,7 +69,7 @@ class MockPlatform extends AbstractPlatform
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getClobTypeDeclarationSQL(array $column): string
     {
@@ -77,7 +77,7 @@ class MockPlatform extends AbstractPlatform
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function getVarcharTypeDeclarationSQLSnippet($length, $fixed): string
     {
@@ -90,7 +90,7 @@ class MockPlatform extends AbstractPlatform
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getBlobTypeDeclarationSQL(array $field): string
     {
@@ -103,7 +103,7 @@ class MockPlatform extends AbstractPlatform
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function getBinaryTypeDeclarationSQLSnippet($length, $fixed): string
     {
