@@ -375,8 +375,12 @@ trait FunctionalTestTrait
         static::$client->enableProfiler();
     }
 
-    private static function getClient(): KernelBrowser
+    protected static function getClient(AbstractBrowser $newClient = null): KernelBrowser
     {
+        if (0 < \func_num_args()) {
+            return static::$client = $newClient;
+        }
+
         if (! static::$client instanceof KernelBrowser) {
             static::fail(sprintf('A client must be set to make assertions on it. Did you forget to call "%s::createClient"?', self::class));
         }

@@ -12,6 +12,11 @@ jobs:
                 php_version:
                     - '8.1'
                     - '8.2'
+                symfony_version:
+                    - '5.4.*'
+                    - '6.3.*'
+                    - '6.4.*'
+                    - '7.0.*'
 
         name: PHP ${{ matrix.php_version }}
         steps:
@@ -27,7 +32,9 @@ jobs:
                   ini-values: zend.assertions=1,assert.exception=1,assert.active=1
                   coverage: pcov
 
-            - run: composer install
+            - run: composer config extra.symfony.require "${{ matrix.symfony_version }}"
+            - run: composer update -W
+
             - run: vendor/bin/phpunit --coverage-clover phpunit/phpunit.coverage.xml --coverage-xml phpunit/coverage-xml --log-junit phpunit/junit.xml
             - run: infection --threads=4 --logger-github --coverage=phpunit
               env:

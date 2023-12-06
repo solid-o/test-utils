@@ -33,12 +33,13 @@
         "solido/php-coding-standards": "dev-master",
         "solido/query-language": "dev-master",
         "solido/security-policy-checker": "dev-master",
-        "symfony/browser-kit": "^5.4 || ^6.0",
-        "symfony/cache": "^5.4 || ^6.0",
-        "symfony/framework-bundle": "^5.4 || ^6.0",
-        "symfony/property-access": "^5.4 || ^6.0",
-        "symfony/translation": "^5.4 || ^6.0",
-        "symfony/validator": "^5.4 || ^6.0"
+        "symfony/browser-kit": "^5.4 || ^6.0 || ^7.0",
+        "symfony/cache": "^5.4 || ^6.0 || ^7.0",
+        "symfony/flex": "^2.0",
+        "symfony/framework-bundle": "^5.4 || ^6.0 || ^7.0",
+        "symfony/property-access": "^5.4 || ^6.0 || ^7.0",
+        "symfony/translation": "^5.4 || ^6.0 || ^7.0",
+        "symfony/validator": "^5.4 || ^6.0 || ^7.0"
     },
     "autoload": {
         "psr-4": {
@@ -53,7 +54,11 @@
     "scripts": {
         "phpstan": "phpstan analyse src/ -c vendor/solido/php-coding-standards/phpstan.neon --level=9 --no-progress -vvv --memory-limit=2048M",
         "cscheck": "vendor/bin/phpcs --standard=Solido src/",
-        "csfix": "vendor/bin/phpcbf --standard=Solido src/"
+        "csfix": "vendor/bin/phpcbf --standard=Solido src/",
+        "auto-scripts": {
+            "cache:clear": "symfony-cmd",
+            "assets:install %PUBLIC_DIR%": "symfony-cmd"
+        }
     },
     "config": {
         "sort-packages": true,
@@ -64,7 +69,8 @@
         "allow-plugins": {
             "composer/package-versions-deprecated": true,
             "dealerdirect/phpcodesniffer-composer-installer": true,
-            "phpstan/extension-installer": true
+            "phpstan/extension-installer": true,
+            "symfony/flex": true
         }
     },
     "extra": {
