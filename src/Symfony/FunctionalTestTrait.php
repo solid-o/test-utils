@@ -28,6 +28,7 @@ use Symfony\Component\VarDumper\Cloner\Data;
 use Symfony\Contracts\Service\ResetInterface;
 
 use function assert;
+use function func_num_args;
 use function gc_collect_cycles;
 use function gc_mem_caches;
 use function implode;
@@ -375,9 +376,9 @@ trait FunctionalTestTrait
         static::$client->enableProfiler();
     }
 
-    protected static function getClient(AbstractBrowser $newClient = null): KernelBrowser
+    protected static function getClient(AbstractBrowser|null $newClient = null): KernelBrowser
     {
-        if (0 < \func_num_args()) {
+        if (0 < func_num_args()) {
             return static::$client = $newClient;
         }
 
