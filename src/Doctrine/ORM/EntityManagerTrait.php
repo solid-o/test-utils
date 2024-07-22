@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Solido\TestUtils\Doctrine\ORM;
 
-use Cache\Adapter\PHPArray\ArrayCachePool;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\Common\Cache\Psr6\DoctrineProvider;
@@ -39,6 +38,7 @@ use Refugis\DoctrineExtra\ORM\EntityRepository;
 use RuntimeException;
 use Solido\TestUtils\Doctrine\ORM\Driver as DoctrineDriver;
 use Solido\TestUtils\Prophecy\Argument\Token\StringMatchesToken;
+use Symfony\Component\Cache\Adapter\ArrayAdapter;
 
 use function array_merge;
 use function array_values;
@@ -71,8 +71,10 @@ trait EntityManagerTrait
         if ($this->_entityManager === null) {
             $this->_configuration = new Configuration();
 
-            if (class_exists(DoctrineProvider::class)) {
-                $this->_configuration->setResultCacheImpl(DoctrineProvider::wrap(new ArrayCachePool()));
+            if (method_exists($this->_configuration, 'setResultCache')) {
+                $this->_configuration->setResultCache(new ArrayAdapter());
+            } elseif (class_exists(DoctrineProvider::class)) {
+                $this->_configuration->setResultCacheImpl(DoctrineProvider::wrap(new ArrayAdapter()));
             } elseif (class_exists(ArrayCache::class)) {
                 $this->_configuration->setResultCacheImpl(new ArrayCache());
             }
@@ -107,7 +109,7 @@ trait EntityManagerTrait
                 ], class_exists(MySQLDriver::class) ? new MySQLDriver() : new Driver(), $this->_configuration);
             }
 
-            $this->_entityManager = EntityManager::create($this->_connection, $this->_configuration);
+            $this->_entityManager = new EntityManager($this->_connection, $this->_configuration);
             $this->onEntityManagerCreated();
 
             $platform = $this->_connection->getDatabasePlatform();

@@ -15,12 +15,13 @@
     ],
     "require": {
         "php": "^8.1",
-        "cache/array-adapter": "^1.0",
         "phpspec/prophecy-phpunit": "^2.0",
-        "solido/common": "^0.3 || ^0.4"
+        "solido/common": "^0.3 || ^0.4",
+        "symfony/cache": "*"
     },
     "require-dev": {
         "ext-json": "*",
+        "doctrine/annotations": "^2.0",
         "doctrine/dbal": "^2.10 || ^3.0",
         "doctrine/mongodb-odm": "^2.0",
         "doctrine/orm": "^2.7",
@@ -34,7 +35,6 @@
         "solido/query-language": "dev-master",
         "solido/security-policy-checker": "dev-master",
         "symfony/browser-kit": "^5.4 || ^6.0 || ^7.0",
-        "symfony/cache": "^5.4 || ^6.0 || ^7.0",
         "symfony/flex": "^2.0",
         "symfony/framework-bundle": "^5.4 || ^6.0 || ^7.0",
         "symfony/property-access": "^5.4 || ^6.0 || ^7.0",
