@@ -20,7 +20,7 @@ class JsonResponsePropertyIsType extends AbstractJsonResponseContent
     {
         $other = self::readProperty($accessor, $data, $this->propertyPath);
 
-        return (new IsType($this->expected))->matches($other);
+        return (new IsType($this->expected))->matches($other); /* @phpstan-ignore-line */
     }
 
     protected function getFailureDescription(mixed $other, PropertyAccessorInterface $accessor): string

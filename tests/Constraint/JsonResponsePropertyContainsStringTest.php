@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Solido\TestUtils\Tests\Constraint;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\ExpectationFailedException;
 use PHPUnit\Framework\TestCase;
 use Solido\TestUtils\Constraint\JsonResponsePropertyContainsString;
@@ -11,9 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class JsonResponsePropertyContainsStringTest extends TestCase
 {
-    /**
-     * @dataProvider matchesProvider
-     */
+    #[DataProvider('matchesProvider')]
     public function testMatches($expected, $response, $path, string $contained, $message = ''): void
     {
         $constraint = new JsonResponsePropertyContainsString($path, $contained);
@@ -28,7 +27,7 @@ class JsonResponsePropertyContainsStringTest extends TestCase
         $constraint->evaluate($response);
     }
 
-    public function matchesProvider(): iterable
+    public static function matchesProvider(): iterable
     {
         yield [false, null, '.', 'foo', 'Failed asserting that null is a response object.'];
         yield [false, true, '.', 'foo', 'Failed asserting that true is a response object.'];

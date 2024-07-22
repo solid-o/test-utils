@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Solido\TestUtils\Constraint;
 
 use JsonException;
-use PHPUnit\Framework\Constraint\JsonMatchesErrorMessageProvider;
+use SebastianBergmann\Exporter\Exporter;
 use Solido\Common\Exception\UnsupportedResponseObjectException;
 use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
 
@@ -49,15 +49,16 @@ abstract class AbstractJsonResponseContent extends ResponseConstraint
 
     protected function failureDescription(mixed $other): string
     {
+        $exporter = new Exporter();
         try {
             $adapter = self::getResponseAdapter($other);
         } catch (UnsupportedResponseObjectException $e) {
-            return sprintf('%s is a response object', $this->exporter()->shortenedExport($other));
+            return sprintf('%s is a response object', $exporter->shortenedExport($other));
         }
 
         $contentType = $adapter->getContentType();
         if (! preg_match('/application\/json/', $contentType)) {
-            return sprintf('%s has json content type', $this->exporter()->shortenedExport($other));
+            return sprintf('%s has json content type', $exporter->shortenedExport($other));
         }
 
         $accessor = self::getPropertyAccessor();
@@ -68,7 +69,7 @@ abstract class AbstractJsonResponseContent extends ResponseConstraint
 
                 return $this->getFailureDescription($value, $accessor);
             } catch (JsonException $e) {
-                $error = JsonMatchesErrorMessageProvider::determineJsonError((string) $e->getCode());
+                $error = JsonMatchesErrorMessageProvider::determineJsonError($e->getCode());
             }
         } else {
             $error = 'Empty response';
@@ -76,7 +77,7 @@ abstract class AbstractJsonResponseContent extends ResponseConstraint
 
         return sprintf(
             '%s is valid JSON response (%s)',
-            $this->exporter()->shortenedExport($other),
+            $exporter->shortenedExport($other),
             $error,
         );
     }

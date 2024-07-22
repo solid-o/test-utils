@@ -68,7 +68,7 @@ class FunctionalTestTraitTest extends TestCase
             [],
             [],
             ['HTTP_ACCEPT' => 'application/json', 'CONTENT_TYPE' => 'application/json'],
-            null
+            null,
         )->shouldBeCalled();
 
         $client->enableProfiler()->shouldBeCalled();
@@ -88,7 +88,7 @@ class FunctionalTestTraitTest extends TestCase
             [],
             [],
             ['HTTP_ACCEPT' => 'application/json', 'CONTENT_TYPE' => 'application/json'],
-            null
+            null,
         )->shouldBeCalled();
 
         $client->enableProfiler()->shouldBeCalled();
@@ -116,7 +116,7 @@ class FunctionalTestTraitTest extends TestCase
             [],
             [],
             ['HTTP_ACCEPT' => 'application/json', 'CONTENT_TYPE' => 'application/json'],
-            null
+            null,
         )->shouldBeCalled();
 
         $client->enableProfiler()->shouldBeCalled();
@@ -161,12 +161,13 @@ class FunctionalTestTraitTest extends TestCase
             'GET',
             '/',
             [],
-            Argument::that(function (array $v) use ($file) {
+            Argument::that(static function (array $v) use ($file) {
                 Assert::assertSame($file, $v[0]);
+
                 return true;
             }),
             ['HTTP_ACCEPT' => 'application/json', 'CONTENT_TYPE' => 'multipart/form-data'],
-            null
+            null,
         )->shouldBeCalled();
 
         $client->enableProfiler()->shouldBeCalled();
@@ -177,7 +178,7 @@ class FunctionalTestTraitTest extends TestCase
             'GET',
             null,
             ['Accept' => 'application/json'],
-            [$file]
+            [$file],
         );
     }
 
@@ -251,7 +252,7 @@ class PreRequestConcreteFunctionalTestTrait extends ConcreteFunctionalTestTrait
             $request->getFiles(),
             $request->getCookies(),
             $request->getServer(),
-            $request->getContent()
+            $request->getContent(),
         );
     }
 }

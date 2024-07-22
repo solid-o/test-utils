@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Solido\TestUtils\Tests\Constraint;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\ExpectationFailedException;
 use PHPUnit\Framework\TestCase;
 use Solido\TestUtils\Constraint\ResponseHasHeaders;
@@ -11,9 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ResponseHasHeadersTest extends TestCase
 {
-    /**
-     * @dataProvider matchesProvider
-     */
+    #[DataProvider('matchesProvider')]
     public function testMatches($expected, array $headers, $response, string $message = ''): void
     {
         $constraint = new ResponseHasHeaders($headers);
@@ -27,7 +26,7 @@ class ResponseHasHeadersTest extends TestCase
         $constraint->evaluate($response);
     }
 
-    public function matchesProvider(): iterable
+    public static function matchesProvider(): iterable
     {
         yield [false, [], null, 'Failed asserting that null is a response object.'];
         yield [false, [], true, 'Failed asserting that true is a response object.'];

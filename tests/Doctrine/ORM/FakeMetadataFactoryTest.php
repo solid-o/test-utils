@@ -1,13 +1,15 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Solido\TestUtils\Tests\Doctrine\ORM;
 
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\Persistence\Mapping\ReflectionService;
+use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Prophecy\PhpUnit\ProphecyTrait;
 use Solido\TestUtils\Doctrine\ORM\FakeMetadataFactory;
-use PHPUnit\Framework\TestCase;
 use Solido\TestUtils\Tests\fixtures\Doctrine\ORM\TestEntity;
 
 class FakeMetadataFactoryTest extends TestCase

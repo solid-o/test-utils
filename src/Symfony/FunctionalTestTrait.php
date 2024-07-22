@@ -6,6 +6,7 @@ namespace Solido\TestUtils\Symfony;
 
 use Generator;
 use LogicException;
+use PHPUnit\Framework\Attributes\PostCondition;
 use PHPUnit\Framework\Constraint\LogicalNot;
 use Solido\Common\Urn\Urn;
 use Solido\PolicyChecker\DataCollector\PolicyCheckerDataCollector;
@@ -220,6 +221,7 @@ trait FunctionalTestTrait
     }
 
     /** @postCondition */
+    #[PostCondition]
     public function checkContracts(): void
     {
         gc_collect_cycles();

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Solido\TestUtils\Tests\Constraint;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\ExpectationFailedException;
 use PHPUnit\Framework\TestCase;
 use Solido\TestUtils\Constraint\JsonResponsePropertyContains;
@@ -11,9 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class JsonResponsePropertyContainsTest extends TestCase
 {
-    /**
-     * @dataProvider matchesProvider
-     */
+    #[DataProvider('matchesProvider')]
     public function testMatches($expected, $response, $path, $properties, $message = ''): void
     {
         $constraint = new JsonResponsePropertyContains($path, $properties);
@@ -28,7 +27,7 @@ class JsonResponsePropertyContainsTest extends TestCase
         $constraint->evaluate($response);
     }
 
-    public function matchesProvider(): iterable
+    public static function matchesProvider(): iterable
     {
         yield [false, null, '.', ['foo'], 'Failed asserting that null is a response object.'];
         yield [false, true, '.', ['foo'], 'Failed asserting that true is a response object.'];
@@ -55,7 +54,7 @@ class JsonResponsePropertyContainsTest extends TestCase
             new Response('{}', Response::HTTP_OK, ['Content-Type' => 'application/json']),
             '.',
             'foo',
-            'Failed asserting that property "\." \(stdClass Object &.+ \(\)\) contains \'foo\'\.',
+            'Failed asserting that property "\." \(stdClass Object #.+ \(\)\) contains \'foo\'\.',
         ];
 
         yield [
@@ -63,8 +62,8 @@ class JsonResponsePropertyContainsTest extends TestCase
             new Response('[]', Response::HTTP_OK, ['Content-Type' => 'application/json']),
             '.',
             'foo',
-            <<<ERR
-            Failed asserting that property "\." \(Array &0 \(\)\) contains 'foo'\.
+            <<<'ERR'
+            Failed asserting that property "\." \(Array &0 \[\]\) contains 'foo'\.
             ERR,
         ];
 
@@ -81,22 +80,23 @@ class JsonResponsePropertyContainsTest extends TestCase
             '.',
             42,
             <<<'ERR'
-            Failed asserting that property "\." \(Array &0 \(
-                0 => '42'
-            \)\) contains 42\.
-            ERR];
+            Failed asserting that property "\." \(Array &0 \[
+                0 => '42',
+            \]\) contains 42\.
+            ERR,
+        ];
 
         yield [
             false,
             new Response('{"foo":"bar"}', Response::HTTP_OK, ['Content-Type' => 'application/json']),
             '.',
             ['foo' => 'foo', 'bar' => 'bar'],
-            <<<ERR
-            Failed asserting that property "\." \(stdClass Object &.+ \(
-                'foo' => 'bar'
-            \)\) contains stdClass Object &.+ \(
-                'foo' => 'foo'
-                'bar' => 'bar'
+            <<<'ERR'
+            Failed asserting that property "\." \(stdClass Object #.+ \(
+                'foo' => 'bar',
+            \)\) contains stdClass Object #.+ \(
+                'foo' => 'foo',
+                'bar' => 'bar',
             \).
             ERR,
         ];
@@ -106,11 +106,11 @@ class JsonResponsePropertyContainsTest extends TestCase
             new Response('{}', Response::HTTP_OK, ['Content-Type' => 'application/json']),
             '.',
             ['foo', 'bar'],
-            <<<ERR
-            Failed asserting that property "\." \(stdClass Object &.+ \(\)\) contains Array &0 \(
-                0 => 'foo'
-                1 => 'bar'
-            \).
+            <<<'ERR'
+            Failed asserting that property "\." \(stdClass Object #.+ \(\)\) contains Array &0 \[
+                0 => 'foo',
+                1 => 'bar',
+            \].
             ERR,
         ];
 
@@ -147,9 +147,9 @@ class JsonResponsePropertyContainsTest extends TestCase
     public function testToString(): void
     {
         $constraint = new JsonResponsePropertyContains('foo', ['foo']);
-        self::assertEquals('property "foo" contains Array (...)', $constraint->toString());
+        self::assertEquals('property "foo" contains [...]', $constraint->toString());
 
         $constraint = new JsonResponsePropertyContains('foo', ['foo', 'bar']);
-        self::assertEquals('property "foo" contains Array (...)', $constraint->toString());
+        self::assertEquals('property "foo" contains [...]', $constraint->toString());
     }
 }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Solido\TestUtils\Constraint;
 
 use ArrayObject;
+use SebastianBergmann\Exporter\Exporter;
 use Solido\Common\Exception\UnsupportedResponseObjectException;
 use Traversable;
 
@@ -52,10 +53,12 @@ final class ResponseSubset extends ResponseConstraint
 
     protected function failureDescription(mixed $other): string
     {
+        $exporter = new Exporter();
+
         try {
             $adapter = self::getResponseAdapter($other);
         } catch (UnsupportedResponseObjectException) {
-            return sprintf('%s is a response object', $this->exporter()->shortenedExport($other));
+            return sprintf('%s is a response object', $exporter->shortenedExport($other));
         }
 
         $otherContent = $this->isJson($adapter)
@@ -64,9 +67,9 @@ final class ResponseSubset extends ResponseConstraint
 
         return sprintf(
             '%s contains subset %s. Actual response content is: %s',
-            $this->exporter()->shortenedExport($other),
-            $this->exporter()->export($this->subset),
-            $this->exporter()->export($otherContent),
+            $exporter->shortenedExport($other),
+            $exporter->export($this->subset),
+            $exporter->export($otherContent),
         );
     }
 
@@ -74,7 +77,7 @@ final class ResponseSubset extends ResponseConstraint
     {
         return sprintf(
             'contains subset %s',
-            $this->exporter()->export($this->subset),
+            (new Exporter())->export($this->subset),
         );
     }
 

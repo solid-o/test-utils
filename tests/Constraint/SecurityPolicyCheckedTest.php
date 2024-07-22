@@ -4,15 +4,14 @@ declare(strict_types=1);
 
 namespace Solido\TestUtils\Tests\Constraint;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\ExpectationFailedException;
 use PHPUnit\Framework\TestCase;
 use Solido\TestUtils\Constraint\SecurityPolicyChecked;
 
 class SecurityPolicyCheckedTest extends TestCase
 {
-    /**
-     * @dataProvider provideMatches
-     */
+    #[DataProvider('matchesProvider')]
     public function testSecurityPolicyMatches(bool $expected, array $checked, string $message = ''): void
     {
         $constraint = new SecurityPolicyChecked(
@@ -31,7 +30,7 @@ class SecurityPolicyCheckedTest extends TestCase
         }
     }
 
-    public function provideMatches(): iterable
+    public static function matchesProvider(): iterable
     {
         yield [false, ['NoGet'], 'Failed asserting that policy has been checked: "NoGet" has not been checked.'];
         yield [false, ['NoGet', 'NoPut'], 'Failed asserting that policies have been checked: "NoGet", "NoPut" have not been checked.'];

@@ -7,6 +7,7 @@ namespace Solido\TestUtils\Tests\Doctrine\ORM;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Error;
+use PHPUnit\Framework\Attributes\RequiresPhp;
 use PHPUnit\Framework\TestCase;
 use Prophecy\PhpUnit\ProphecyTrait;
 use Prophecy\Prophecy\ObjectProphecy;
@@ -17,6 +18,7 @@ use Solido\TestUtils\Doctrine\ORM\FakeMetadataFactory;
 use Solido\TestUtils\Doctrine\ORM\MockPlatform;
 use Solido\TestUtils\Tests\fixtures\Doctrine\ORM;
 
+use function method_exists;
 use function spl_object_hash;
 
 class EntityManagerTraitTest extends TestCase
@@ -27,7 +29,7 @@ class EntityManagerTraitTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->obj = new EntityManagerTestConcrete();
+        $this->obj = new EntityManagerTestConcrete('testFoo');
     }
 
     public function testGetEntityManagerShouldReturnAnEntityManager(): void
@@ -149,9 +151,7 @@ class EntityManagerTraitTest extends TestCase
         self::assertInstanceOf(ClassMetadata::class, $em->getClassMetadata(ORM\TestEmbeddable::class));
     }
 
-    /**
-     * @requires PHP >= 8.0
-     */
+    #[RequiresPhp('>= 8.0')]
     public function testLoadEntityMetadataWithAttributes(): void
     {
         $this->obj->loadEntityMetadata(ORM\Php80\TestEntity::class);
@@ -241,6 +241,10 @@ class EntityManagerTestConcrete extends TestCase
     }
 
     public int $createdCall = 0;
+
+    public function testFoo(): void
+    {
+    }
 
     public function getInnerConnection()
     {

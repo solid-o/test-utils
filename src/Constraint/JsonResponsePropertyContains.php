@@ -7,6 +7,7 @@ namespace Solido\TestUtils\Constraint;
 use PHPUnit\Framework\Constraint\TraversableContainsEqual;
 use PHPUnit\Framework\Constraint\TraversableContainsIdentical;
 use PHPUnit\Framework\ExpectationFailedException;
+use SebastianBergmann\Exporter\Exporter;
 use stdClass;
 use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
 
@@ -45,12 +46,13 @@ class JsonResponsePropertyContains extends AbstractJsonResponseContent
     protected function getFailureDescription(mixed $other, PropertyAccessorInterface $accessor): string
     {
         $other = self::readProperty($accessor, $other, $this->propertyPath);
+        $exporter = new Exporter();
 
         return sprintf(
             'property "%s" (%s) contains %s',
             $this->propertyPath,
-            $this->exporter()->export($other),
-            $this->exporter()->export($this->expected),
+            $exporter->export($other),
+            $exporter->export($this->expected),
         );
     }
 
@@ -59,7 +61,7 @@ class JsonResponsePropertyContains extends AbstractJsonResponseContent
         return sprintf(
             'property "%s" contains %s',
             $this->propertyPath,
-            $this->exporter()->shortenedExport($this->expected),
+            (new Exporter())->shortenedExport($this->expected),
         );
     }
 }

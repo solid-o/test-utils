@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Solido\TestUtils\Constraint;
 
+use SebastianBergmann\Exporter\Exporter;
 use Solido\Common\Exception\UnsupportedResponseObjectException;
 
 use function json_encode;
@@ -32,17 +33,19 @@ final class ResponseHeaderSame extends ResponseConstraint
 
     protected function failureDescription(mixed $other): string
     {
+        $exporter = new Exporter();
+
         try {
             $adapter = self::getResponseAdapter($other);
         } catch (UnsupportedResponseObjectException) {
-            return sprintf('%s is a response object', $this->exporter()->shortenedExport($other));
+            return sprintf('%s is a response object', $exporter->shortenedExport($other));
         }
 
         $header = $adapter->getHeader($this->header)[0] ?? null;
 
         return sprintf(
             '%s has header %s with value %s (%s)',
-            $this->exporter()->shortenedExport($other),
+            $exporter->shortenedExport($other),
             json_encode($this->header, JSON_THROW_ON_ERROR),
             json_encode($this->value, JSON_THROW_ON_ERROR),
             $header === null ? 'header missing' : 'actual value: ' . json_encode($header, JSON_THROW_ON_ERROR),

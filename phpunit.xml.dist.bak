@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- https://phpunit.readthedocs.io/en/latest/configuration.html -->
-<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd" backupGlobals="false" failOnRisky="false" colors="true" bootstrap="vendor/autoload.php" cacheDirectory=".phpunit.cache">
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd" backupGlobals="false" colors="true" bootstrap="vendor/autoload.php">
+  <coverage processUncoveredFiles="true">
+    <include>
+      <directory suffix=".php">src</directory>
+    </include>
+  </coverage>
   <php>
     <ini name="error_reporting" value="-1"/>
     <server name="SHELL_VERBOSITY" value="-1"/>
@@ -12,9 +17,4 @@
       <exclude>tests/QueryLanguage/_files</exclude>
     </testsuite>
   </testsuites>
-  <source>
-    <include>
-      <directory suffix=".php">src</directory>
-    </include>
-  </source>
 </phpunit>

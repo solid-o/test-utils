@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Solido\TestUtils\Constraint;
 
+use SebastianBergmann\Exporter\Exporter;
 use Solido\Common\Exception\UnsupportedResponseObjectException;
 
 use function array_map;
@@ -47,15 +48,17 @@ final class ResponseHasHeaders extends ResponseConstraint
 
     protected function failureDescription(mixed $other): string
     {
+        $exporter = new Exporter();
+
         try {
             self::getResponseAdapter($other);
         } catch (UnsupportedResponseObjectException) {
-            return sprintf('%s is a response object', $this->exporter()->shortenedExport($other));
+            return sprintf('%s is a response object', $exporter->shortenedExport($other));
         }
 
         return sprintf(
             '%s has %s header%s',
-            $this->exporter()->shortenedExport($other),
+            $exporter->shortenedExport($other),
             count($this->missing) === 1 ?
                 json_encode($this->missing[0], JSON_THROW_ON_ERROR) :
                 implode(', ', array_map('json_encode', $this->headers)),

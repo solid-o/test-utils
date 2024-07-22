@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Solido\TestUtils\Constraint;
 
+use SebastianBergmann\Exporter\Exporter;
 use Solido\Common\Exception\UnsupportedResponseObjectException;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -39,14 +40,14 @@ final class ResponseStatusCode extends ResponseConstraint
         try {
             $adapter = self::getResponseAdapter($other);
         } catch (UnsupportedResponseObjectException) {
-            return sprintf('%s is a response object', $this->exporter()->shortenedExport($other));
+            return sprintf('%s is a response object', (new Exporter())->shortenedExport($other));
         }
 
         $statusCode = $adapter->getStatusCode();
 
         return sprintf(
             '%s status code (%u%s) is %s',
-            $this->exporter()->shortenedExport($other),
+            (new Exporter())->shortenedExport($other),
             $statusCode,
             class_exists(Response::class) && isset(Response::$statusTexts[$statusCode])
                 ? ' ' . Response::$statusTexts[$statusCode]

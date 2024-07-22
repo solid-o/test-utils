@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use Solido\QueryLanguage\Walker\Validation\ValidationWalkerInterface;
 use Symfony\Component\Validator\Context\ExecutionContext;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -17,7 +18,7 @@ use function Safe\sprintf;
 
 abstract class AbstractValidationWalkerTestCase extends TestCase
 {
-    protected ExecutionContext $context;
+    protected ExecutionContextInterface $context;
     protected ValidationWalkerInterface $walker;
 
     abstract protected function createValidationWalker(): ValidationWalkerInterface;
@@ -40,7 +41,7 @@ abstract class AbstractValidationWalkerTestCase extends TestCase
         $this->walker->setValidationContext($this->context);
     }
 
-    protected function createContext(): ExecutionContext
+    protected function createContext(): ExecutionContextInterface
     {
         $translator = $this->createMock(TranslatorInterface::class);
         $translator->method('trans')->willReturnArgument(0);

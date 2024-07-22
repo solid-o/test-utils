@@ -87,7 +87,7 @@ trait ResponseStatusTrait
         self::assertThat(static::getResponse(), new LogicalNot(new ResponseIsRedirection()), $message);
     }
 
-    public static function assertResponseIsSuccessful(string $message = ''): void
+    public static function assertResponseIsSuccessful(string $message = '', bool $verbose = true): void
     {
         self::assertThat(static::getResponse(), new ResponseIsSuccessful(), $message);
     }

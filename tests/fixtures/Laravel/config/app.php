@@ -2,13 +2,17 @@
 
 declare(strict_types=1);
 
+use Illuminate\Filesystem\FilesystemServiceProvider;
+use Illuminate\Translation\TranslationServiceProvider;
+use Illuminate\View\ViewServiceProvider;
+
 return [
     'name' => 'Laravel',
     'env' => 'testing',
 
     'providers' => [
-        Illuminate\Filesystem\FilesystemServiceProvider::class,
-        Illuminate\Translation\TranslationServiceProvider::class,
-        Illuminate\View\ViewServiceProvider::class,
+        FilesystemServiceProvider::class,
+        TranslationServiceProvider::class,
+        ViewServiceProvider::class,
     ],
 ];

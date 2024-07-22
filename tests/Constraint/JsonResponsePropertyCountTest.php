@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Solido\TestUtils\Tests\Constraint;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\ExpectationFailedException;
 use PHPUnit\Framework\TestCase;
 use Solido\TestUtils\Constraint\JsonResponsePropertyCount;
@@ -11,9 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class JsonResponsePropertyCountTest extends TestCase
 {
-    /**
-     * @dataProvider matchesProvider
-     */
+    #[DataProvider('matchesProvider')]
     public function testMatches($expected, $response, $path, int $count, $message = ''): void
     {
         $constraint = new JsonResponsePropertyCount($path, $count);
@@ -28,7 +27,7 @@ class JsonResponsePropertyCountTest extends TestCase
         $constraint->evaluate($response);
     }
 
-    public function matchesProvider(): iterable
+    public static function matchesProvider(): iterable
     {
         yield [false, null, '.', 0, 'Failed asserting that null is a response object.'];
         yield [false, true, '.', 0, 'Failed asserting that true is a response object.'];

@@ -6,18 +6,12 @@ namespace Solido\TestUtils\Tests\fixtures\Doctrine\ORM;
 
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Embeddable()
- */
+/** @ORM\Embeddable() */
 class TestEmbeddable
 {
-    /**
-     * @ORM\Column(type="integer")
-     */
-    public ?int $id;
+    /** @ORM\Column(type="integer") */
+    public int|null $id;
 
-    /**
-     * @ORM\Column()
-     */
+    /** @ORM\Column() */
     public string $field42Name;
 }

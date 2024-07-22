@@ -6,6 +6,7 @@ namespace Solido\TestUtils\Constraint;
 
 use PHPUnit\Framework\Constraint\IsEqual;
 use PHPUnit\Framework\ExpectationFailedException;
+use SebastianBergmann\Exporter\Exporter;
 use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
 
 use function sprintf;
@@ -31,13 +32,14 @@ class JsonResponsePropertyEquals extends AbstractJsonResponseContent
 
     protected function getFailureDescription(mixed $other, PropertyAccessorInterface $accessor): string
     {
+        $exporter = new Exporter();
         $other = self::readProperty($accessor, $other, $this->propertyPath);
 
         return sprintf(
             'property "%s" (%s) is equal to %s',
             $this->propertyPath,
-            $this->exporter()->shortenedExport($other),
-            $this->exporter()->shortenedExport($this->expected),
+            $exporter->shortenedExport($other),
+            $exporter->shortenedExport($this->expected),
         );
     }
 
@@ -46,7 +48,7 @@ class JsonResponsePropertyEquals extends AbstractJsonResponseContent
         return sprintf(
             'property "%s" is equal to %s',
             $this->propertyPath,
-            $this->exporter()->shortenedExport($this->expected),
+            (new Exporter())->shortenedExport($this->expected),
         );
     }
 }

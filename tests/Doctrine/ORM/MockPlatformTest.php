@@ -1,9 +1,11 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Solido\TestUtils\Tests\Doctrine\ORM;
 
-use Solido\TestUtils\Doctrine\ORM\MockPlatform;
 use PHPUnit\Framework\TestCase;
+use Solido\TestUtils\Doctrine\ORM\MockPlatform;
 
 class MockPlatformTest extends TestCase
 {

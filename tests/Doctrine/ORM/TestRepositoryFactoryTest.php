@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Solido\TestUtils\Tests\Doctrine\ORM;
 
@@ -6,9 +8,9 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\Persistence\ObjectRepository;
+use PHPUnit\Framework\TestCase;
 use Prophecy\PhpUnit\ProphecyTrait;
 use Solido\TestUtils\Doctrine\ORM\TestRepositoryFactory;
-use PHPUnit\Framework\TestCase;
 use Solido\TestUtils\Tests\fixtures\Doctrine\ORM\TestEntity;
 use stdClass;
 use TypeError;

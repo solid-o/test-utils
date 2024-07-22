@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Solido\TestUtils\Tests\Constraint;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\ExpectationFailedException;
 use PHPUnit\Framework\TestCase;
 use Solido\TestUtils\Constraint\ResponseStatusCode;
@@ -11,9 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ResponseStatusCodeTest extends TestCase
 {
-    /**
-     * @dataProvider providerMatches
-     */
+    #[DataProvider('matchesProvider')]
     public function testMatches(bool $expected, $codes, $response, $message = ''): void
     {
         $constraint = new ResponseStatusCode(...$codes);
@@ -27,7 +26,7 @@ class ResponseStatusCodeTest extends TestCase
         $constraint->evaluate($response);
     }
 
-    public function providerMatches(): iterable
+    public static function matchesProvider(): iterable
     {
         yield [false, [200], null, 'Failed asserting that null is a response object.'];
         yield [false, [200], new Response('', 204), 'Failed asserting that Symfony\Component\HttpFoundation\Response Object (...) status code (204 No Content) is equal to 200.'];

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Solido\TestUtils\Tests\Constraint;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\ExpectationFailedException;
 use PHPUnit\Framework\TestCase;
 use Solido\TestUtils\Constraint\JsonResponsePropertyIsType;
@@ -11,9 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class JsonResponsePropertyIsTypeTest extends TestCase
 {
-    /**
-     * @dataProvider matchesProvider
-     */
+    #[DataProvider('matchesProvider')]
     public function testMatches($expected, $response, $path, string $type, $message = ''): void
     {
         $constraint = new JsonResponsePropertyIsType($path, $type);
@@ -28,7 +27,7 @@ class JsonResponsePropertyIsTypeTest extends TestCase
         $constraint->evaluate($response);
     }
 
-    public function matchesProvider(): iterable
+    public static function matchesProvider(): iterable
     {
         yield [false, null, '.', 'string', 'Failed asserting that null is a response object.'];
         yield [false, true, '.', 'string', 'Failed asserting that true is a response object.'];

@@ -6,6 +6,7 @@ namespace Solido\TestUtils\Tests\Doctrine\ORM;
 
 use Doctrine\ORM\Mapping\Driver\AnnotationDriver;
 use Doctrine\ORM\Mapping\Driver\AttributeDriver;
+use PHPUnit\Framework\Attributes\RequiresPhp;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use Solido\TestUtils\Doctrine\ORM\Driver;
@@ -18,9 +19,7 @@ class DriverTest extends TestCase
         self::assertInstanceOf(AnnotationDriver::class, $driver);
     }
 
-    /**
-     * @requires PHP >= 8.0
-     */
+    #[RequiresPhp('>= 8.0')]
     public function testShouldCreateAttributeDriver(): void
     {
         $driver = Driver::createDriver(Driver::ATTRIBUTE, [__DIR__]);

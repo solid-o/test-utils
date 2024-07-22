@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Solido\TestUtils\Constraint;
 
 use JsonException;
-use PHPUnit\Framework\Constraint\JsonMatchesErrorMessageProvider;
+use SebastianBergmann\Exporter\Exporter;
 use Solido\Common\Exception\UnsupportedResponseObjectException;
 
 use function json_decode;
@@ -39,14 +39,16 @@ final class JsonResponse extends ResponseConstraint
 
     protected function failureDescription(mixed $other): string
     {
+        $exporter = new Exporter();
+
         try {
             $adapter = self::getResponseAdapter($other);
         } catch (UnsupportedResponseObjectException) {
-            return sprintf('%s is a response object', $this->exporter()->shortenedExport($other));
+            return sprintf('%s is a response object', $exporter->shortenedExport($other));
         }
 
         if (! preg_match('/application\/json/', $adapter->getContentType())) {
-            return sprintf('%s has json content type', $this->exporter()->shortenedExport($other));
+            return sprintf('%s has json content type', $exporter->shortenedExport($other));
         }
 
         $content = $adapter->getContent();
@@ -56,13 +58,13 @@ final class JsonResponse extends ResponseConstraint
             try {
                 json_decode($content, false, 512, JSON_THROW_ON_ERROR);
             } catch (JsonException $e) {
-                $error = JsonMatchesErrorMessageProvider::determineJsonError((string) $e->getCode());
+                $error = JsonMatchesErrorMessageProvider::determineJsonError($e->getCode());
             }
         }
 
         return sprintf(
             '%s is valid JSON response (%s)',
-            $this->exporter()->shortenedExport($other),
+            $exporter->shortenedExport($other),
             $error,
         );
     }

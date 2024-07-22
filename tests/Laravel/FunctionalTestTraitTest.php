@@ -45,7 +45,7 @@ class FunctionalTestTraitTest extends TestCase
             [],
             [],
             ['HTTP_ACCEPT' => 'application/json', 'CONTENT_TYPE' => 'application/json'],
-            null
+            null,
         )->shouldBeCalled();
 
         $client->getResponse()->willReturn(new Response());
@@ -64,7 +64,7 @@ class FunctionalTestTraitTest extends TestCase
             [],
             [],
             ['HTTP_ACCEPT' => 'application/json', 'CONTENT_TYPE' => 'application/json'],
-            null
+            null,
         )->shouldBeCalledTimes(1);
 
         $client->getResponse()->willReturn(new Response());
@@ -91,7 +91,7 @@ class FunctionalTestTraitTest extends TestCase
             [],
             [],
             ['HTTP_ACCEPT' => 'application/json', 'CONTENT_TYPE' => 'application/json'],
-            null
+            null,
         )->shouldBeCalledTimes(1);
 
         $client->getResponse()->willReturn(new Response());
@@ -134,7 +134,7 @@ class FunctionalTestTraitTest extends TestCase
             [],
             Argument::any(),
             ['HTTP_ACCEPT' => 'application/json', 'CONTENT_TYPE' => 'multipart/form-data'],
-            null
+            null,
         )->shouldBeCalled();
 
         $client->getResponse()->willReturn(new Response());
@@ -144,7 +144,7 @@ class FunctionalTestTraitTest extends TestCase
             'GET',
             null,
             ['Accept' => 'application/json'],
-            [new UploadedFile(__DIR__ . '/../fixtures/photo.jpg', 'photo.jpg', 'image/jpeg', UPLOAD_ERR_OK, true)]
+            [new UploadedFile(__DIR__ . '/../fixtures/photo.jpg', 'photo.jpg', 'image/jpeg', UPLOAD_ERR_OK, true)],
         );
     }
 
@@ -216,7 +216,7 @@ class PreRequestConcreteFunctionalTestTrait extends ConcreteFunctionalTestTrait
             $request->getFiles(),
             $request->getCookies(),
             $request->getServer(),
-            $request->getContent()
+            $request->getContent(),
         );
     }
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Solido\TestUtils\Constraint;
 
+use SebastianBergmann\Exporter\Exporter;
 use Solido\Common\Exception\UnsupportedResponseObjectException;
 
 use function array_is_list;
@@ -45,10 +46,12 @@ final class ResponseLength extends ResponseConstraint
 
     protected function failureDescription(mixed $other): string
     {
+        $exporter = new Exporter();
+
         try {
             $adapter = self::getResponseAdapter($other);
         } catch (UnsupportedResponseObjectException) {
-            return sprintf('%s is a response object', $this->exporter()->shortenedExport($other));
+            return sprintf('%s is a response object', $exporter->shortenedExport($other));
         }
 
         $otherContent = $this->isJson($adapter)
@@ -57,9 +60,9 @@ final class ResponseLength extends ResponseConstraint
 
         return sprintf(
             '%s has length %u. Actual response content is: %s',
-            $this->exporter()->shortenedExport($other),
+            $exporter->shortenedExport($other),
             $this->length,
-            $this->exporter()->export($otherContent),
+            $exporter->export($otherContent),
         );
     }
 

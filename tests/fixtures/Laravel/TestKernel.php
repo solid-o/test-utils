@@ -14,12 +14,14 @@ class TestKernel extends Kernel
     public function bootstrap(): void
     {
         self::$bootCount++;
+
         parent::bootstrap();
     }
 
     public function terminate($request, $response): void
     {
         parent::terminate($request, $response);
+
         self::$shutdownCount++;
     }
 

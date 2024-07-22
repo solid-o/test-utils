@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Solido\TestUtils\Tests\Doctrine\ORM;
 
-use Solido\TestUtils\Doctrine\ORM\DummyResult;
 use PHPUnit\Framework\TestCase;
+use Solido\TestUtils\Doctrine\ORM\DummyResult;
 
 class DummyResultTest extends TestCase
 {
