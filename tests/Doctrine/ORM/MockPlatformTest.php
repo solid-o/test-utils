@@ -52,21 +52,17 @@ class MockPlatformTest extends TestCase
 
     public function testVarcharDeclaration(): void
     {
-        self::assertEquals('VARCHAR(255)', $this->platform->getVarcharTypeDeclarationSQL([]));
-        self::assertEquals('VARCHAR(255)', $this->platform->getVarcharTypeDeclarationSQL(['length' => false]));
-        self::assertEquals('VARCHAR(120)', $this->platform->getVarcharTypeDeclarationSQL(['length' => 120]));
-        self::assertEquals('CHAR(255)', $this->platform->getVarcharTypeDeclarationSQL(['fixed' => true]));
-        self::assertEquals('CHAR(120)', $this->platform->getVarcharTypeDeclarationSQL(['fixed' => true, 'length' => 120]));
-        self::assertEquals('CLOB', $this->platform->getVarcharTypeDeclarationSQL(['length' => 65536]));
+        self::assertEquals('VARCHAR(255)', $this->platform->getStringTypeDeclarationSQL(['name' => 'foo']));
+        self::assertEquals('VARCHAR(255)', $this->platform->getStringTypeDeclarationSQL(['name' => 'foo', 'length' => null]));
+        self::assertEquals('VARCHAR(120)', $this->platform->getStringTypeDeclarationSQL(['name' => 'foo', 'length' => 120]));
+        self::assertEquals('CHAR(120)', $this->platform->getStringTypeDeclarationSQL(['name' => 'foo', 'fixed' => true, 'length' => 120]));
     }
 
     public function testBinaryDeclaration(): void
     {
-        self::assertEquals('BLOB', $this->platform->getBlobTypeDeclarationSQL([]));
-        self::assertEquals('VARBINARY(255)', $this->platform->getBinaryTypeDeclarationSQL([]));
-        self::assertEquals('VARBINARY(255)', $this->platform->getBinaryTypeDeclarationSQL(['length' => false]));
-        self::assertEquals('VARBINARY(120)', $this->platform->getBinaryTypeDeclarationSQL(['length' => 120]));
-        self::assertEquals('BINARY(255)', $this->platform->getBinaryTypeDeclarationSQL(['fixed' => true]));
-        self::assertEquals('BINARY(120)', $this->platform->getBinaryTypeDeclarationSQL(['fixed' => true, 'length' => 120]));
+        self::assertEquals('BLOB', $this->platform->getBlobTypeDeclarationSQL(['name' => 'foo']));
+        self::assertEquals('VARBINARY(120)', $this->platform->getBinaryTypeDeclarationSQL(['name' => 'foo', 'length' => 120]));
+        self::assertEquals('BINARY(255)', $this->platform->getBinaryTypeDeclarationSQL(['name' => 'foo', 'fixed' => true]));
+        self::assertEquals('BINARY(120)', $this->platform->getBinaryTypeDeclarationSQL(['name' => 'foo', 'fixed' => true, 'length' => 120]));
     }
 }

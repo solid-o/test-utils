@@ -4,6 +4,10 @@
   <php>
     <ini name="error_reporting" value="-1"/>
     <server name="SHELL_VERBOSITY" value="-1"/>
+
+        <!-- ###+ symfony/mailer ### -->
+        <env name="MAILER_DSN" value="null://null"/>
+        <!-- ###- symfony/mailer ### -->
   </php>
   <testsuites>
     <testsuite name="Project Test Suite">

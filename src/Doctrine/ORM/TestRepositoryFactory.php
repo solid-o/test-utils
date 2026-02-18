@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Solido\TestUtils\Doctrine\ORM;
 
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Repository\RepositoryFactory;
 use Doctrine\Persistence\Mapping\ClassMetadata;
 use Doctrine\Persistence\ObjectRepository;
@@ -19,10 +20,7 @@ final class TestRepositoryFactory implements RepositoryFactory
     /** @var ObjectRepository[] */
     private array $repositoryList = [];
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getRepository(EntityManagerInterface $entityManager, $entityName): ObjectRepository
+    public function getRepository(EntityManagerInterface $entityManager, string $entityName): EntityRepository
     {
         $repositoryHash = $this->getRepositoryHash($entityManager, $entityName);
 

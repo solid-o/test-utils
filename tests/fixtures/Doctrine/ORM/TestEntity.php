@@ -6,16 +6,14 @@ namespace Solido\TestUtils\Tests\fixtures\Doctrine\ORM;
 
 use Doctrine\ORM\Mapping as ORM;
 
-/** @ORM\Entity() */
+#[ORM\Entity]
 class TestEntity
 {
-    /**
-     * @ORM\Column(type="integer")
-     * @ORM\GeneratedValue()
-     * @ORM\Id()
-     */
+    #[ORM\Column(type: 'integer')]
+    #[ORM\GeneratedValue]
+    #[ORM\Id]
     public int|null $id;
 
-    /** @ORM\Column() */
+    #[ORM\Column]
     public string $field42Name;
 }

@@ -9,6 +9,7 @@ use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\Persistence\ObjectRepository;
 use PHPUnit\Framework\TestCase;
+use Prophecy\Exception\Doubler\ClassMirrorException;
 use Prophecy\PhpUnit\ProphecyTrait;
 use Solido\TestUtils\Doctrine\ORM\TestRepositoryFactory;
 use Solido\TestUtils\Tests\fixtures\Doctrine\ORM\TestEntity;
@@ -34,7 +35,12 @@ class TestRepositoryFactoryTest extends TestCase
             ->willReturn($metadata = $this->prophesize(ClassMetadata::class));
         $metadata->getName()->willReturn(TestEntity::class);
 
-        $this->factory->setRepository($em->reveal(), TestEntity::class, $repository);
+        try {
+            $this->factory->setRepository($em->reveal(), TestEntity::class, $repository);
+        } catch (ClassMirrorException) {
+            self::markTestSkipped('Cannot mirror class metadata');
+        }
+
         $r = $this->factory->getRepository($em->reveal(), TestEntity::class);
 
         self::assertSame($r, $repository->reveal());

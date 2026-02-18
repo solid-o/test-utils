@@ -6,13 +6,14 @@ namespace Solido\TestUtils\Doctrine\ORM;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping\ClassMetadata as ORMClassMetadata;
+use Doctrine\ORM\Mapping\ClassMetadataFactory;
 use Solido\TestUtils\Doctrine\AbstractFakeMetadataFactory;
 
 use function assert;
 
-class FakeMetadataFactory extends AbstractFakeMetadataFactory
+class FakeMetadataFactory extends ClassMetadataFactory
 {
-    public function setEntityManager(EntityManagerInterface $entityManager): void
+    public function setEntityManager(EntityManagerInterface $em): void
     {
     }
 
@@ -25,7 +26,7 @@ class FakeMetadataFactory extends AbstractFakeMetadataFactory
 
         parent::setMetadataFor($className, $class);
 
-        $class->initializeReflection($this->reflectionService);
-        $class->wakeupReflection($this->reflectionService);
+        $class->initializeReflection($this->getReflectionService());
+        $class->wakeupReflection($this->getReflectionService());
     }
 }

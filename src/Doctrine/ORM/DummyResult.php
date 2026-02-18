@@ -28,10 +28,7 @@ final class DummyResult implements Result
         $this->columnCount = count($data[0]);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function fetchNumeric()
+    public function fetchNumeric(): false|array
     {
         $row = $this->fetch();
         if ($row === false) {
@@ -41,18 +38,12 @@ final class DummyResult implements Result
         return array_values($row);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function fetchAssociative()
+    public function fetchAssociative(): false|array
     {
         return $this->fetch();
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function fetchOne()
+    public function fetchOne(): mixed
     {
         $row = $this->fetch();
 

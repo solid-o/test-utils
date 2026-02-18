@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace Solido\TestUtils\Tests\Doctrine\ORM;
 
+use Doctrine\DBAL\ParameterType;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Error;
 use PHPUnit\Framework\Attributes\RequiresPhp;
 use PHPUnit\Framework\TestCase;
+use Prophecy\Exception\Doubler\ClassMirrorException;
 use Prophecy\PhpUnit\ProphecyTrait;
 use Prophecy\Prophecy\ObjectProphecy;
 use Refugis\DoctrineExtra\ORM\EntityRepository;
@@ -102,7 +104,11 @@ class EntityManagerTraitTest extends TestCase
 
         $connection = $this->obj->getInnerConnection()->reveal();
         $stmt = $connection->prepare('SELECT * from xz WHERE x.id = ?');
-        $stmt->bindValue(1, 42);
+        if (enum_exists(ParameterType::class)) {
+            $stmt->bindValue(1, 42, ParameterType::INTEGER);
+        } else {
+            $stmt->bindValue(1, 42);
+        }
         $stmt = $stmt->execute();
 
         self::assertEquals([['x1' => 'foo']], method_exists($stmt, 'fetchAll') ? $stmt->fetchAll() : $stmt->fetchAllAssociative());
@@ -122,7 +128,11 @@ class EntityManagerTraitTest extends TestCase
 
         $connection = $this->obj->getInnerConnection()->reveal();
         $stmt = $connection->prepare('INSERT INTO xz VALUES (?)');
-        $stmt->bindValue(1, 42);
+        if (enum_exists(ParameterType::class)) {
+            $stmt->bindValue(1, 42, ParameterType::INTEGER);
+        } else {
+            $stmt->bindValue(1, 42);
+        }
         $stmt = $stmt->execute();
         self::assertEquals(1, $stmt->rowCount());
     }
@@ -204,8 +214,12 @@ class EntityManagerTraitTest extends TestCase
 
     public function testSetRepository(): void
     {
-        $this->obj->loadEntityMetadata(ORM\TestEntity::class);
-        $this->obj->setRepository(ORM\TestEntity::class, $repo = $this->prophesize(EntityRepository::class));
+        try {
+            $this->obj->loadEntityMetadata(ORM\TestEntity::class);
+            $this->obj->setRepository(ORM\TestEntity::class, $repo = $this->prophesize(EntityRepository::class));
+        } catch (ClassMirrorException) {
+            self::markTestSkipped('Cannot mirror class metadata');
+        }
 
         $repo->get('12')->willReturn(new ORM\TestEntity());
 

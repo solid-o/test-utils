@@ -17,6 +17,7 @@ use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\ServerVersionProvider;
 use Doctrine\ORM\Configuration;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
@@ -89,11 +90,20 @@ trait EntityManagerTrait
             $this->_configuration->setNamingStrategy(new UnderscoreNamingStrategy(CASE_LOWER, true));
 
             $this->_innerConnection = $this->prophesize(interface_exists(DriverConnection::class) ? DriverConnection::class : PDOConnection::class);
-            if (interface_exists(ServerInfoAwareConnection::class)) {
-                $this->_innerConnection->willImplement(ServerInfoAwareConnection::class);
-            }
 
-            if (interface_exists(ServerInfoAwareConnection::class)) {
+            if (interface_exists(ServerVersionProvider::class)) {
+                $this->_innerConnection->willImplement(ServerVersionProvider::class);
+                $this->_innerConnection->getServerVersion()->willReturn('10.0.0');
+                $this->_connection = new Connection([
+                    'user' => 'user',
+                    'name' => 'dbname',
+                    'platform' => $this->getConnectionPlatform(),
+                ], class_exists(MySQLDriver::class) ? new MySQLDriver() : new Driver(), $this->_configuration);
+
+                (fn (ServerVersionProvider $connection) => $this->_conn = $connection)
+                    ->bindTo($this->_connection, Connection::class)($this->_innerConnection->reveal());
+            } elseif (interface_exists(ServerInfoAwareConnection::class)) {
+                $this->_innerConnection->willImplement(ServerInfoAwareConnection::class);
                 $this->_connection = new Connection([
                     'user' => 'user',
                     'name' => 'dbname',
@@ -264,7 +274,7 @@ trait EntityManagerTrait
                 $stmt->bindValue(Argument::cetera())->willReturn();
             } else {
                 foreach (array_values($parameters) as $key => $value) {
-                    $stmt->bindValue($key + 1, $value, Argument::any())->willReturn();
+                    $stmt->bindValue($key + 1, $value, Argument::any())->will(static function (): void {});
                 }
             }
 
@@ -280,16 +290,16 @@ trait EntityManagerTrait
 
         /* @infection-ignore-all */
         if (empty($parameters)) {
-            $stmt->bindValue(Argument::cetera())->willReturn();
+            $stmt->bindValue(Argument::cetera())->will(static function (): void {});
         } else {
             foreach (array_values($parameters) as $key => $value) {
-                $stmt->bindValue($key + 1, $value, Argument::any())->willReturn();
+                $stmt->bindValue($key + 1, $value, Argument::any())->will(static function (): void {});
             }
         }
 
         /* @infection-ignore-all */
         if (method_exists(Statement::class, 'setFetchMode')) {
-            $stmt->execute()->willReturn();
+            $stmt->execute()->will(static function (): void {});
             $stmt->rowCount()->willReturn($rowCount);
         } else {
             $stmt->execute()->willReturn(new DummyResult([], $rowCount));

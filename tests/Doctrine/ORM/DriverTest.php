@@ -15,6 +15,10 @@ class DriverTest extends TestCase
 {
     public function testShouldCreateAnnotationDriver(): void
     {
+        if (!class_exists(AnnotationDriver::class)) {
+            self::markTestSkipped('Doctrine ORM AnnotationDriver is not available');
+        }
+
         $driver = Driver::createDriver(Driver::ANNOTATION, [__DIR__]);
         self::assertInstanceOf(AnnotationDriver::class, $driver);
     }
