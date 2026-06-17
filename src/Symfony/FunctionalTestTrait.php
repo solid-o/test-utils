@@ -27,6 +27,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\VarDumper\Cloner\Data;
 use Symfony\Contracts\Service\ResetInterface;
+use Throwable;
 
 use function assert;
 use function func_num_args;
@@ -37,6 +38,7 @@ use function in_array;
 use function is_array;
 use function iterator_to_array;
 use function json_encode;
+use function ob_end_clean;
 use function ob_end_flush;
 use function ob_get_clean;
 use function ob_start;
@@ -270,14 +272,20 @@ trait FunctionalTestTrait
         static::enableProfiler();
 
         ob_start();
-        static::$client->request(
-            $request->getMethod(),
-            $request->getUri(),
-            $request->getParameters(),
-            $request->getFiles(),
-            $request->getServer(),
-            $request->getContent(),
-        );
+        try {
+            static::$client->request(
+                $request->getMethod(),
+                $request->getUri(),
+                $request->getParameters(),
+                $request->getFiles(),
+                $request->getServer(),
+                $request->getContent(),
+            );
+        } catch (Throwable $e) {
+            ob_end_clean();
+
+            throw $e;
+        }
 
         $response = self::$client->getResponse();
         if ($response instanceof StreamedResponse) {

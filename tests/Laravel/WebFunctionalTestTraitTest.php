@@ -13,6 +13,14 @@ class WebFunctionalTestTraitTest extends WebTestCase implements HttpTestCaseInte
 {
     use FunctionalTestTrait;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        TestKernel::$bootCount = 0;
+        TestKernel::$shutdownCount = 0;
+    }
+
     protected static function getKernelClass(): string
     {
         return TestKernel::class;

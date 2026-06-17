@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Solido\TestUtils\Tests\fixtures\Laravel;
 
 use Illuminate\Foundation\Http\Kernel;
+use Illuminate\Http\Response;
 
 class TestKernel extends Kernel
 {
@@ -16,6 +17,8 @@ class TestKernel extends Kernel
         self::$bootCount++;
 
         parent::bootstrap();
+
+        $this->app['router']->get('/', static fn (): Response => new Response('', Response::HTTP_OK));
     }
 
     public function terminate($request, $response): void
