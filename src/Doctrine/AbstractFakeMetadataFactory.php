@@ -13,9 +13,10 @@ use Doctrine\Persistence\Mapping\RuntimeReflectionService;
 use function array_values;
 use function class_exists;
 
+/** @implements ClassMetadataFactory<ClassMetadata<object>> */
 class AbstractFakeMetadataFactory implements ClassMetadataFactory
 {
-    /** @var array<string, ClassMetadata> */
+    /** @var array<class-string, ClassMetadata<object>> */
     private array $metadata;
     protected RuntimeReflectionService $reflectionService;
 
@@ -36,20 +37,18 @@ class AbstractFakeMetadataFactory implements ClassMetadataFactory
     {
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** @return list<ClassMetadata<object>> */
     public function getAllMetadata(): array
     {
         return array_values($this->metadata);
     }
 
     /**
-     * {@inheritDoc}
-     *
      * @param class-string $className
+     *
+     * @return ClassMetadata<object>
      */
-    public function getMetadataFor($className): ClassMetadata
+    public function getMetadataFor(string $className): ClassMetadata
     {
         if (class_exists(ClassUtils::class)) {
             $className = ClassUtils::getRealClass($className);
@@ -77,11 +76,10 @@ class AbstractFakeMetadataFactory implements ClassMetadataFactory
     }
 
     /**
-     * {@inheritDoc}
-     *
      * @param class-string $className
+     * @param ClassMetadata<object> $class
      */
-    public function setMetadataFor($className, $class): void
+    public function setMetadataFor(string $className, ClassMetadata $class): void
     {
         if (class_exists(ClassUtils::class)) {
             $className = ClassUtils::getRealClass($className);

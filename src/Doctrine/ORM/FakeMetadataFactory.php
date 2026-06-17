@@ -7,9 +7,7 @@ namespace Solido\TestUtils\Doctrine\ORM;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping\ClassMetadata as ORMClassMetadata;
 use Doctrine\ORM\Mapping\ClassMetadataFactory;
-use Solido\TestUtils\Doctrine\AbstractFakeMetadataFactory;
-
-use function assert;
+use Doctrine\Persistence\Mapping\ClassMetadata;
 
 class FakeMetadataFactory extends ClassMetadataFactory
 {
@@ -18,12 +16,11 @@ class FakeMetadataFactory extends ClassMetadataFactory
     }
 
     /**
-     * {@inheritDoc}
+     * @param class-string $className
+     * @param ORMClassMetadata<object> $class
      */
-    public function setMetadataFor($className, $class): void
+    public function setMetadataFor(string $className, ClassMetadata $class): void
     {
-        assert($class instanceof ORMClassMetadata);
-
         parent::setMetadataFor($className, $class);
 
         $class->initializeReflection($this->getReflectionService());

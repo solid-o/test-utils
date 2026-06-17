@@ -1,0 +1,15 @@
+includes:
+    - vendor/solido/php-coding-standards/phpstan.neon
+
+parameters:
+    paths:
+        - src
+
+    excludePaths:
+        analyse:
+            - src/Laravel
+
+    ignoreErrors:
+        -
+            identifier: trait.unused
+            path: src

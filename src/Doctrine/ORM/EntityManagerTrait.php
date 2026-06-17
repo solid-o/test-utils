@@ -274,7 +274,8 @@ trait EntityManagerTrait
                 $stmt->bindValue(Argument::cetera())->willReturn();
             } else {
                 foreach (array_values($parameters) as $key => $value) {
-                    $stmt->bindValue($key + 1, $value, Argument::any())->will(static function (): void {});
+                    $stmt->bindValue($key + 1, $value, Argument::any())->will(static function (): void {
+                    });
                 }
             }
 
@@ -290,16 +291,19 @@ trait EntityManagerTrait
 
         /* @infection-ignore-all */
         if (empty($parameters)) {
-            $stmt->bindValue(Argument::cetera())->will(static function (): void {});
+            $stmt->bindValue(Argument::cetera())->will(static function (): void {
+            });
         } else {
             foreach (array_values($parameters) as $key => $value) {
-                $stmt->bindValue($key + 1, $value, Argument::any())->will(static function (): void {});
+                $stmt->bindValue($key + 1, $value, Argument::any())->will(static function (): void {
+                });
             }
         }
 
         /* @infection-ignore-all */
         if (method_exists(Statement::class, 'setFetchMode')) {
-            $stmt->execute()->will(static function (): void {});
+            $stmt->execute()->will(static function (): void {
+            });
             $stmt->rowCount()->willReturn($rowCount);
         } else {
             $stmt->execute()->willReturn(new DummyResult([], $rowCount));

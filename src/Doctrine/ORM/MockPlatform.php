@@ -8,9 +8,11 @@ namespace Solido\TestUtils\Doctrine\ORM;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Platforms\DateIntervalUnit;
 use Doctrine\DBAL\Platforms\Keywords\KeywordList;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\TableDiff;
+use RuntimeException;
 
 use function sprintf;
 
@@ -80,13 +82,10 @@ class MockPlatform extends AbstractPlatform
         return 'CLOB';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     protected function getVarcharTypeDeclarationSQLSnippet(mixed $length, mixed $fixed = false): string
     {
         $type = $fixed ? 'CHAR' : 'VARCHAR';
-        if ($length === false || $length === null) {
+        if ($length === null) {
             $length = 255;
         }
 
@@ -106,9 +105,6 @@ class MockPlatform extends AbstractPlatform
         return 'dummy';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     protected function getBinaryTypeDeclarationSQLSnippet(mixed $length, mixed $fixed = true): string
     {
         return sprintf('%s(%d)', $fixed ? 'BINARY' : 'VARBINARY', $length ?: 255);
@@ -131,55 +127,66 @@ class MockPlatform extends AbstractPlatform
         return sprintf('POSITION(%s IN %s)', $substring, $string);
     }
 
-    public function getDateDiffExpression(mixed $date1, mixed $date2): string
+    public function getDateDiffExpression(string $date1, string $date2): string
     {
         return '(DATE(' . $date1 . ')-DATE(' . $date2 . '))';
     }
 
-    protected function getDateArithmeticIntervalExpression(mixed $date, mixed $operator, mixed $interval, mixed $unit): string
+    protected function getDateArithmeticIntervalExpression(string $date, string $operator, string $interval, DateIntervalUnit $unit): string
     {
         $function = $operator === '+' ? 'DATE_ADD' : 'DATE_SUB';
 
         return $function . '(' . $date . ', INTERVAL ' . $interval . ' ' . $unit->value . ')';
     }
 
+    /** @return list<string> */
     public function getAlterTableSQL(TableDiff $diff): array
     {
-        // TODO: Implement getAlterTableSQL() method.
+        return [];
     }
 
     public function getListViewsSQL(mixed $database): string
     {
-        // TODO: Implement getListViewsSQL() method.
+        return '';
     }
 
     public function getSetTransactionIsolationSQL(mixed $level): string
     {
-        // TODO: Implement getSetTransactionIsolationSQL() method.
+        return '';
     }
 
+    /** @param array<string, mixed> $column */
     public function getDateTimeTypeDeclarationSQL(array $column): string
     {
-        // TODO: Implement getDateTimeTypeDeclarationSQL() method.
+        return 'DATETIME';
     }
 
+    /** @param array<string, mixed> $column */
     public function getDateTypeDeclarationSQL(array $column): string
     {
-        // TODO: Implement getDateTypeDeclarationSQL() method.
+        return 'DATE';
     }
 
+    /** @param array<string, mixed> $column */
     public function getTimeTypeDeclarationSQL(array $column): string
     {
-        // TODO: Implement getTimeTypeDeclarationSQL() method.
+        return 'TIME';
     }
 
     protected function createReservedKeywordsList(): KeywordList
     {
-        // TODO: Implement createReservedKeywordsList() method.
+        return new class extends KeywordList {
+            /** @return list<string> */
+            protected function getKeywords(): array
+            {
+                return [];
+            }
+        };
     }
 
+    /** @return AbstractSchemaManager<AbstractPlatform> */
     public function createSchemaManager(Connection $connection): AbstractSchemaManager
     {
-        // TODO: Implement createSchemaManager() method.
+        throw new RuntimeException('Schema manager is not supported by the mock platform.');
     }
 }

@@ -24,13 +24,13 @@ class Response
 {
     use JsonResponseTrait;
 
-    private const STATUS_CODE_CLASS_INFORMATIONAL = 100;
-    private const STATUS_CODE_CLASS_SUCCESS = 200;
-    private const STATUS_CODE_CLASS_REDIRECTION = 300;
-    private const STATUS_CODE_CLASS_CLIENT_ERROR = 400;
-    private const STATUS_CODE_CLASS_SERVER_ERROR = 500;
+    private const int STATUS_CODE_CLASS_INFORMATIONAL = 100;
+    private const int STATUS_CODE_CLASS_SUCCESS = 200;
+    private const int STATUS_CODE_CLASS_REDIRECTION = 300;
+    private const int STATUS_CODE_CLASS_CLIENT_ERROR = 400;
+    private const int STATUS_CODE_CLASS_SERVER_ERROR = 500;
 
-    private const TYPE_JSON = 'json';
+    private const string TYPE_JSON = 'json';
 
     /** @var callable(): object */
     private $performer;

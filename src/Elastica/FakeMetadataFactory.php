@@ -10,12 +10,11 @@ use Refugis\ODM\Elastica\Metadata\DocumentMetadata;
 use Refugis\ODM\Elastica\Metadata\MetadataFactory;
 
 use function array_values;
-use function assert;
 use function is_object;
 
 class FakeMetadataFactory extends MetadataFactory
 {
-    /** @var array<string, DocumentMetadata> */
+    /** @var array<class-string, DocumentMetadata<object>> */
     private array $metadata;
 
     /**
@@ -25,18 +24,13 @@ class FakeMetadataFactory extends MetadataFactory
     {
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** @return list<DocumentMetadata<object>> */
     public function getAllMetadata(): array
     {
         return array_values($this->metadata);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getMetadataFor($className): ClassMetadataInterface
+    public function getMetadataFor(mixed $className): ClassMetadataInterface
     {
         if (is_object($className)) {
             $className = $className::class;
@@ -62,11 +56,13 @@ class FakeMetadataFactory extends MetadataFactory
     }
 
     /**
-     * {@inheritDoc}
+     * @param class-string $className
+     * @param DocumentMetadata<object> $class
+     *
+     * @phpcsSuppress SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
      */
     public function setMetadataFor($className, $class): void
     {
-        assert($class instanceof DocumentMetadata);
         $this->metadata[$className] = $class;
     }
 

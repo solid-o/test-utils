@@ -19,7 +19,7 @@ class SecurityPolicyChecked extends Constraint
     /** @var array<string, mixed>[] */
     private array $checkedPolicies;
 
-    /** @var array<string, mixed>[] */
+    /** @var array<mixed> */
     private array $remaining;
 
     /** @param array<string, mixed> ...$checkedPolicies */
