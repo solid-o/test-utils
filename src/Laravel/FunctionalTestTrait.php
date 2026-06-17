@@ -6,6 +6,9 @@ namespace Solido\TestUtils\Laravel;
 
 use Solido\TestUtils\Symfony\FunctionalTestTrait as SymfonyFunctionalTestTrait;
 
+use function restore_error_handler;
+use function restore_exception_handler;
+
 trait FunctionalTestTrait
 {
     use SymfonyFunctionalTestTrait;
@@ -15,6 +18,11 @@ trait FunctionalTestTrait
      */
     protected static function ensureKernelShutdown(): void
     {
+        if (static::$booted) {
+            restore_error_handler();
+            restore_exception_handler();
+        }
+
         static::$booted = false;
     }
 

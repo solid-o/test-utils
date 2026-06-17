@@ -40,6 +40,7 @@ use function json_encode;
 use function ob_end_flush;
 use function ob_get_clean;
 use function ob_start;
+use function restore_exception_handler;
 use function sprintf;
 use function str_replace;
 use function strtolower;
@@ -76,9 +77,14 @@ trait FunctionalTestTrait
             return;
         }
 
-        $container = static::$booted ? static::$kernel->getContainer() : null;
+        $wasBooted = static::$booted;
+        $container = $wasBooted ? static::$kernel->getContainer() : null;
         static::$kernel->shutdown();
         static::$booted = false;
+
+        if ($wasBooted) {
+            restore_exception_handler();
+        }
 
         if (! ($container instanceof ResetInterface)) {
             return;

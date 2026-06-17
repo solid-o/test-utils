@@ -34,6 +34,8 @@ use function class_exists;
 use function class_uses_recursive;
 use function debug_backtrace;
 use function func_num_args;
+use function restore_error_handler;
+use function restore_exception_handler;
 use function Safe\array_flip;
 use function Safe\getcwd;
 use function sprintf;
@@ -218,11 +220,17 @@ class WebTestCase extends TestCase
             return;
         }
 
+        $wasBooted = static::$booted;
         static::callBeforeApplicationDestroyedCallbacks();
 
         static::$kernel->flush();
         static::$kernel->terminate();
         static::$booted = false;
+
+        if ($wasBooted) {
+            restore_error_handler();
+            restore_exception_handler();
+        }
 
         if (self::$callbackException !== null) {
             throw self::$callbackException;

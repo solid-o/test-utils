@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Solido\TestUtils\Constraint;
 
 use PHPUnit\Framework\Constraint\IsType;
+use PHPUnit\Framework\NativeType;
 use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
 
 use function get_debug_type;
@@ -20,7 +21,7 @@ class JsonResponsePropertyIsType extends AbstractJsonResponseContent
     {
         $other = self::readProperty($accessor, $data, $this->propertyPath);
 
-        return (new IsType($this->expected))->matches($other); /* @phpstan-ignore-line */
+        return (new IsType(NativeType::from($this->expected)))->matches($other);
     }
 
     protected function getFailureDescription(mixed $other, PropertyAccessorInterface $accessor): string

@@ -80,6 +80,10 @@ trait EntityManagerTrait
                 $this->_configuration->setResultCacheImpl(new ArrayCache());
             }
 
+            if (method_exists($this->_configuration, 'enableNativeLazyObjects')) {
+                $this->_configuration->enableNativeLazyObjects(true);
+            }
+
             $this->_configuration->setClassMetadataFactoryName(FakeMetadataFactory::class);
             $this->_configuration->setMetadataDriverImpl($this->prophesize(MappingDriver::class)->reveal());
             $this->_configuration->setProxyDir(sys_get_temp_dir());

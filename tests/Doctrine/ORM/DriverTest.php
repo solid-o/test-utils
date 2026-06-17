@@ -23,7 +23,7 @@ class DriverTest extends TestCase
         self::assertInstanceOf(AnnotationDriver::class, $driver);
     }
 
-    #[RequiresPhp('>= 8.0')]
+    #[RequiresPhp('>= 8.0.0')]
     public function testShouldCreateAttributeDriver(): void
     {
         $driver = Driver::createDriver(Driver::ATTRIBUTE, [__DIR__]);

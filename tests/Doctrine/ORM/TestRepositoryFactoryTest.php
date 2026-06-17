@@ -7,7 +7,6 @@ namespace Solido\TestUtils\Tests\Doctrine\ORM;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Mapping\ClassMetadata;
-use Doctrine\Persistence\ObjectRepository;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Exception\Doubler\ClassMirrorException;
 use Prophecy\PhpUnit\ProphecyTrait;
@@ -49,7 +48,7 @@ class TestRepositoryFactoryTest extends TestCase
     public function testShouldThrowOnInvalidObject(): void
     {
         $this->expectException(TypeError::class);
-        $this->expectExceptionMessage('Argument 3 passed to Solido\TestUtils\Doctrine\ORM\TestRepositoryFactory::setRepository must implement interface ' . ObjectRepository::class . ', instance of stdClass given.');
+        $this->expectExceptionMessage('Argument 3 passed to Solido\TestUtils\Doctrine\ORM\TestRepositoryFactory::setRepository must implement class ' . EntityRepository::class . ', instance of stdClass given.');
 
         $em = $this->prophesize(EntityManagerInterface::class);
         $this->factory->setRepository($em->reveal(), TestEntity::class, new stdClass());

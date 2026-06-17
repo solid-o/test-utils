@@ -161,7 +161,7 @@ class EntityManagerTraitTest extends TestCase
         self::assertInstanceOf(ClassMetadata::class, $em->getClassMetadata(ORM\TestEmbeddable::class));
     }
 
-    #[RequiresPhp('>= 8.0')]
+    #[RequiresPhp('>= 8.0.0')]
     public function testLoadEntityMetadataWithAttributes(): void
     {
         $this->obj->loadEntityMetadata(ORM\Php80\TestEntity::class);
