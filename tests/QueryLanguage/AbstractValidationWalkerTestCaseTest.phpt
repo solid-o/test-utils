@@ -15,7 +15,7 @@ require __DIR__ . '/../../vendor/autoload.php';
 
 (new PHPUnit\TextUI\Application)->run($_SERVER['argv']);
 --EXPECTF--
-PHPUnit %s by Sebastian Bergmann and contributors.
+%aPHPUnit %s by Sebastian Bergmann and contributors.
 
 Runtime:       PHP %s
 Configuration: %sphpunit.xml
