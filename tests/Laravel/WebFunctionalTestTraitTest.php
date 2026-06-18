@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Solido\TestUtils\Tests\Laravel;
 
+use RuntimeException;
 use Solido\TestUtils\HttpTestCaseInterface;
 use Solido\TestUtils\Laravel\FunctionalTestTrait;
 use Solido\TestUtils\Laravel\WebTestCase;
@@ -45,5 +46,15 @@ class WebFunctionalTestTraitTest extends WebTestCase implements HttpTestCaseInte
         self::get('/');
         self::assertEquals(2, TestKernel::$bootCount);
         self::assertEquals(2, TestKernel::$shutdownCount);
+    }
+
+    public function testOriginalExceptionIsRethrownWhenExceptionCatchingIsDisabled(): void
+    {
+        self::expectException(RuntimeException::class);
+        self::expectExceptionMessage('Original Laravel failure');
+
+        $client = self::createClient();
+        $client->catchExceptions(false);
+        $client->request('GET', '/exception');
     }
 }

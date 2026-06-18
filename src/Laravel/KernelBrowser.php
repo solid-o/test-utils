@@ -4,11 +4,15 @@ declare(strict_types=1);
 
 namespace Solido\TestUtils\Laravel;
 
+use Illuminate\Contracts\Debug\ExceptionHandler;
 use Illuminate\Contracts\Http\Kernel;
+use Illuminate\Foundation\Application;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\HttpKernelBrowser;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
+
+use function assert;
 
 class KernelBrowser extends HttpKernelBrowser
 {
@@ -45,11 +49,29 @@ class KernelBrowser extends HttpKernelBrowser
         }
 
         $request = Request::createFromBase($request);
-        $response = $this->kernel->handle($request, HttpKernelInterface::MAIN_REQUEST, $this->catchExceptions);
+        $response = $this->handleRequest($request);
 
         $this->kernel->get(Kernel::class)->terminate($request, $response);
         $this->kernel->terminate();
 
         return $response;
+    }
+
+    private function handleRequest(Request $request): Response
+    {
+        if ($this->catchExceptions || ! $this->kernel instanceof Application) {
+            return $this->kernel->handle($request, HttpKernelInterface::MAIN_REQUEST, $this->catchExceptions);
+        }
+
+        $exceptionHandler = $this->kernel->make(ExceptionHandler::class);
+        assert($exceptionHandler instanceof ExceptionHandler);
+
+        $this->kernel->instance(ExceptionHandler::class, new RethrowingExceptionHandler($exceptionHandler));
+
+        try {
+            return $this->kernel->handle($request, HttpKernelInterface::MAIN_REQUEST, false);
+        } finally {
+            $this->kernel->instance(ExceptionHandler::class, $exceptionHandler);
+        }
     }
 }

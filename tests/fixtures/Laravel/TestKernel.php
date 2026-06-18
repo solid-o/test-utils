@@ -6,6 +6,7 @@ namespace Solido\TestUtils\Tests\fixtures\Laravel;
 
 use Illuminate\Foundation\Http\Kernel;
 use Illuminate\Http\Response;
+use RuntimeException;
 
 class TestKernel extends Kernel
 {
@@ -19,6 +20,9 @@ class TestKernel extends Kernel
         parent::bootstrap();
 
         $this->app['router']->get('/', static fn (): Response => new Response('', Response::HTTP_OK));
+        $this->app['router']->get('/exception', static function (): never {
+            throw new RuntimeException('Original Laravel failure');
+        });
     }
 
     public function terminate($request, $response): void
