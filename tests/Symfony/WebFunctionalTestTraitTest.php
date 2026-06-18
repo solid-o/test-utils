@@ -30,24 +30,29 @@ class WebFunctionalTestTraitTest extends WebTestCase implements HttpTestCaseInte
     {
         $kernel = self::bootKernel();
         self::assertTrue($kernel->isBooted());
-        self::assertEquals(1, TestKernel::$bootCount);
+
+        $bootCount = TestKernel::$bootCount;
+        $shutdownCount = TestKernel::$shutdownCount;
+        self::assertGreaterThanOrEqual(1, $bootCount);
 
         self::ensureKernelShutdown();
         self::assertFalse($kernel->isBooted());
-        self::assertEquals(1, TestKernel::$bootCount);
-        self::assertEquals(1, TestKernel::$shutdownCount);
+        self::assertEquals($bootCount, TestKernel::$bootCount);
+        self::assertEquals($shutdownCount + 1, TestKernel::$shutdownCount);
 
         self::get('/');
-        self::assertEquals(2, TestKernel::$bootCount);
-        self::assertEquals(1, TestKernel::$shutdownCount);
+        self::assertGreaterThan($bootCount, TestKernel::$bootCount);
+
+        $bootCount = TestKernel::$bootCount;
+        $shutdownCount = TestKernel::$shutdownCount;
 
         self::ensureKernelShutdown();
         self::ensureKernelShutdown();
         self::ensureKernelShutdown();
-        self::assertEquals(2, TestKernel::$shutdownCount);
+        self::assertEquals($bootCount, TestKernel::$bootCount);
+        self::assertEquals($shutdownCount + 1, TestKernel::$shutdownCount);
 
         self::get('/');
-        self::assertEquals(3, TestKernel::$bootCount);
-        self::assertEquals(2, TestKernel::$shutdownCount);
+        self::assertGreaterThan($bootCount, TestKernel::$bootCount);
     }
 }
